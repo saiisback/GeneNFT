@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,19 +8,33 @@ import { Upload, FileText, Sparkles, Dna, Brain, Code, ArrowLeft, CheckCircle } 
 import Link from 'next/link';
 import ParticleBackground from '@/components/ParticleBackground';
 import Connect from '@/components/Connect';
+import { useActiveAccount } from 'thirdweb/react';
 
 export default function UploadPage() {
+  const activeAccount = useActiveAccount();
+  
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     external_url: '',
     license: 'MIT',
-    wallet_address: '0x1234567890123456789012345678901234567890'
+    wallet_address: ''
   });
   const [xmlFile, setXmlFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState('');
   const [uploadSuccess, setUploadSuccess] = useState(false);
+
+  // Update wallet address when account changes
+  useEffect(() => {
+    if (activeAccount?.address) {
+      setFormData(prev => ({
+        ...prev,
+        wallet_address: activeAccount.address
+      }));
+    }
+  }, [activeAccount?.address]);
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -42,7 +56,7 @@ export default function UploadPage() {
       description: 'A unique genetic sequence NFT with rare traits',
       external_url: 'https://example.com/gene-nft',
       license: 'MIT',
-      wallet_address: '0x1234567890123456789012345678901234567890'
+      wallet_address: activeAccount?.address || formData.wallet_address
     });
     
     // Create a mock XML file
@@ -68,10 +82,16 @@ export default function UploadPage() {
       return;
     }
 
+    if (!formData.wallet_address) {
+      setError('Please connect your wallet first');
+      return;
+    }
+
     setIsUploading(true);
     setError('');
 
     try {
+
       // Create FormData for file upload
       const uploadData = new FormData();
       uploadData.append('xml_file', xmlFile);
@@ -81,15 +101,38 @@ export default function UploadPage() {
       uploadData.append('license', formData.license);
       uploadData.append('wallet_address', formData.wallet_address);
 
-      // Upload to backend
-      const response = await fetch('http://localhost:3001/api/nfts', {
-        method: 'POST',
-        body: uploadData,
+      console.log('Uploading data:', {
+        name: formData.name,
+        description: formData.description,
+        external_url: formData.external_url,
+        license: formData.license,
+        wallet_address: formData.wallet_address,
+        fileName: xmlFile.name,
+        fileSize: xmlFile.size
       });
-
-      if (!response.ok) {
-        throw new Error(`Upload failed: ${response.statusText}`);
+      
+      // Debug: Log FormData contents
+      console.log('FormData contents:');
+      for (let [key, value] of uploadData.entries()) {
+        console.log(`${key}:`, value);
       }
+
+              // Upload to Rust backend
+        const response = await fetch('http://localhost:3001/api/nft/upload-xml', {
+          method: 'POST',
+          body: uploadData,
+        });
+
+              console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Error response:', errorText);
+          console.error('Response status:', response.status);
+          console.error('Response status text:', response.statusText);
+          throw new Error(`Upload failed: ${response.status} - ${response.statusText}`);
+        }
 
       const result = await response.json();
       console.log('Upload successful:', result);
@@ -103,15 +146,19 @@ export default function UploadPage() {
           description: '',
           external_url: '',
           license: 'MIT',
-          wallet_address: '0x1234567890123456789012345678901234567890'
+          wallet_address: activeAccount?.address || ''
         });
         setXmlFile(null);
         setUploadSuccess(false);
       }, 3000);
       
     } catch (err) {
-      setError('Failed to upload XML file. Please make sure the backend is running and try again.');
-      console.error('Upload error:', err);
+      console.error('Upload error details:', err);
+      if (err instanceof Error) {
+        setError(`Upload failed: ${err.message}. Please make sure the Rust backend is running on port 3001 and try again.`);
+      } else {
+        setError('Failed to upload XML file. Please make sure the Rust backend is running and try again.');
+      }
     } finally {
       setIsUploading(false);
     }
@@ -252,6 +299,8 @@ export default function UploadPage() {
                 <p className="text-white/70 font-cursive">
                   Fill in the details and upload your XML file to mint a unique NFT
                 </p>
+                
+               
               </CardHeader>
 
               <CardContent>
@@ -358,27 +407,33 @@ export default function UploadPage() {
                   </div>
 
                   <div>
+                 
+                    
                     <label className="block text-sm font-medium text-white/80 mb-2 font-cursive">
-                      Wallet Address (Mock)
+                      Wallet Address *
                     </label>
-                    <input
-                      type="text"
-                      name="wallet_address"
-                      value={formData.wallet_address}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white/50 cursor-not-allowed font-mono"
-                      readOnly
-                    />
-                    <p className="text-xs text-white/40 mt-1 font-cursive">
-                      Using mock wallet address for showcase purposes
-                    </p>
+                    <div className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white font-mono">
+                      {formData.wallet_address
+                        ? formData.wallet_address
+                        : (
+                          <span className="text-white/40">
+                            {activeAccount?.address
+                              ? activeAccount.address
+                              : "Connect wallet to auto-fill"}
+                          </span>
+                        )
+                      }
+                    </div>
+                    
                   </div>
 
                   {error && (
                     <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
                       <p className="text-red-400 text-sm font-cursive">{error}</p>
+
                     </div>
                   )}
+
 
                   <Button
                     type="submit"
