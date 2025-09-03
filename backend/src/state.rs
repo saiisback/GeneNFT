@@ -90,53 +90,60 @@ impl AppState {
 
     pub fn buy_nft(&self, nft_id: &str, buyer_address: &str, price: f64) -> Result<Transaction, String> {
         // Check if NFT is listed and price matches
-        if let Ok(listings) = self.listings.lock() {
-            if let Some(listing) = listings.get(nft_id) {
-                if listing.status != ListingStatus::Active {
-                    return Err("NFT is not available for purchase".to_string());
-                }
-                if listing.price != price {
-                    return Err("Price mismatch".to_string());
-                }
-
-                // Update NFT ownership
-                if let Ok(mut nfts) = self.nfts.lock() {
-                    if let Some(nft) = nfts.get(nft_id).cloned() {
-                        let mut updated_nft = nft;
-                        updated_nft.owner = buyer_address.to_string();
-                        updated_nft.is_listed = false;
-                        updated_nft.price = None;
-                        updated_nft.listing_date = None;
-                        nfts.insert(nft_id.to_string(), updated_nft);
-                    }
-                }
-
-                // Remove the sold listing from active listings
-                if let Ok(mut listings) = self.listings.lock() {
-                    listings.remove(nft_id);
-                }
-
-                // Create transaction record
-                let transaction = Transaction {
-                    id: uuid::Uuid::new_v4().to_string(),
-                    nft_id: nft_id.to_string(),
-                    seller: listing.seller.clone(),
-                    buyer: buyer_address.to_string(),
-                    price,
-                    transaction_hash: format!("0x{}", hex::encode(uuid::Uuid::new_v4().as_bytes())),
-                    timestamp: Utc::now().to_rfc3339(),
-                };
-
-                if let Ok(mut transactions) = self.transactions.lock() {
-                    transactions.insert(transaction.id.clone(), transaction.clone());
-                }
-
-                Ok(transaction)
+        let listing = {
+            if let Ok(listings) = self.listings.lock() {
+                listings.get(nft_id).cloned()
             } else {
-                Err("NFT not listed for sale".to_string())
+                return Err("Failed to access listing data".to_string());
             }
+        };
+
+        if let Some(listing) = listing {
+            if listing.status != ListingStatus::Active {
+                return Err("NFT is not available for purchase".to_string());
+            }
+            if listing.price != price {
+                return Err("Price mismatch".to_string());
+            }
+            if listing.seller == buyer_address {
+                return Err("You cannot buy your own NFT".to_string());
+            }
+
+            // Update NFT ownership
+            if let Ok(mut nfts) = self.nfts.lock() {
+                if let Some(nft) = nfts.get(nft_id).cloned() {
+                    let mut updated_nft = nft;
+                    updated_nft.owner = buyer_address.to_string();
+                    updated_nft.is_listed = false;
+                    updated_nft.price = None;
+                    updated_nft.listing_date = None;
+                    nfts.insert(nft_id.to_string(), updated_nft);
+                }
+            }
+
+            // Remove the sold listing from active listings
+            if let Ok(mut listings) = self.listings.lock() {
+                listings.remove(nft_id);
+            }
+
+            // Create transaction record
+            let transaction = Transaction {
+                id: uuid::Uuid::new_v4().to_string(),
+                nft_id: nft_id.to_string(),
+                seller: listing.seller.clone(),
+                buyer: buyer_address.to_string(),
+                price,
+                transaction_hash: format!("0x{}", hex::encode(uuid::Uuid::new_v4().as_bytes())),
+                timestamp: Utc::now().to_rfc3339(),
+            };
+
+            if let Ok(mut transactions) = self.transactions.lock() {
+                transactions.insert(transaction.id.clone(), transaction.clone());
+            }
+
+            Ok(transaction)
         } else {
-            Err("Failed to access listing data".to_string())
+            Err("NFT not listed for sale".to_string())
         }
     }
 

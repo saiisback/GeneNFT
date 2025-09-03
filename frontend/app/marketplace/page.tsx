@@ -91,6 +91,12 @@ export default function MarketplacePage() {
   const handleBuyNFT = (listing: NFTListing) => {
     if (!listing || !activeAccount) return;
     
+    // Check if user is trying to buy their own NFT
+    if (listing.seller === activeAccount.address) {
+      alert("You cannot buy your own NFT!");
+      return;
+    }
+    
     setSelectedListing(listing);
     setShowBuyModal(true);
   };
@@ -101,7 +107,16 @@ export default function MarketplacePage() {
     try {
       setBuying(selectedListing.nft_id);
       
-      // Call the backend API to purchase the NFT
+      console.log('Starting NFT purchase...', {
+        nft_id: selectedListing.nft_id,
+        buyer_address: activeAccount.address,
+        price: selectedListing.price
+      });
+      
+      // Call the backend API to purchase the NFT with timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
       const purchaseResponse = await fetch('http://127.0.0.1:3001/api/marketplace/buy', {
         method: 'POST',
         headers: {
@@ -111,11 +126,18 @@ export default function MarketplacePage() {
           nft_id: selectedListing.nft_id,
           buyer_address: activeAccount.address,
           price: selectedListing.price
-        })
+        }),
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
+
+      console.log('Purchase response status:', purchaseResponse.status);
 
       if (!purchaseResponse.ok) {
-        throw new Error('Failed to purchase NFT');
+        const errorText = await purchaseResponse.text();
+        console.error('Purchase failed:', errorText);
+        throw new Error(`Purchase failed: ${purchaseResponse.status} - ${errorText}`);
       }
 
       const purchaseResult = await purchaseResponse.json();
@@ -153,7 +175,19 @@ export default function MarketplacePage() {
       setSelectedListing(null);
     } catch (error) {
       console.error('Failed to buy NFT:', error);
-      alert('Failed to purchase NFT. Please try again.');
+      let errorMessage = 'Unknown error occurred';
+      
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorMessage = 'Request timed out - backend server may not be responding';
+        } else if (error.message.includes('fetch')) {
+          errorMessage = 'Network error - cannot connect to backend server';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      alert(`Failed to purchase NFT: ${errorMessage}\n\nPlease check:\n1. Backend server is running (http://127.0.0.1:3001)\n2. You have sufficient balance\n3. Network connection is stable\n4. Try refreshing the page`);
     } finally {
       setBuying(null);
     }
@@ -328,6 +362,16 @@ export default function MarketplacePage() {
                       <div className="text-center">
                         <p className="text-white/60 font-cursive mb-3">Connect wallet to buy</p>
                         <Connect />
+                      </div>
+                    ) : listing.seller === activeAccount.address ? (
+                      <div className="text-center">
+                        <p className="text-white/60 font-cursive mb-3">Your NFT</p>
+                        <Button
+                          disabled
+                          className="w-full bg-white/5 border border-white/10 text-white/40 font-bold py-3 rounded-lg cursor-not-allowed"
+                        >
+                          Owned by You
+                        </Button>
                       </div>
                     ) : (
                       <Button
