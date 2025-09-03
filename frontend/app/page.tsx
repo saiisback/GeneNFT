@@ -1,129 +1,109 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { NFT } from './types';
-import { nftApi } from './api';
-import NFTCard from './components/NFTCard';
-import XMLUploadForm from './components/XMLUploadForm';
-import Connect from './components/Connect';
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import Hero from '@/components/Hero';
+import NFTCollection from '@/components/NFTCollection';
+import UploadForm from '@/components/UploadForm';
+import ParticleBackground from '@/components/ParticleBackground';
 
 export default function Home() {
-  const [nfts, setNfts] = useState<NFT[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
   const [showUploadForm, setShowUploadForm] = useState(false);
 
-  const fetchNFTs = async () => {
-    try {
-      setIsLoading(true);
-      const data = await nftApi.getAll();
-      setNfts(data);
-      setError('');
-    } catch (err) {
-      setError('Failed to fetch NFTs. Make sure the backend is running.');
-      console.error('Error fetching NFTs:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchNFTs();
-  }, []);
-
   const handleUploadSuccess = () => {
-    fetchNFTs(); // Refresh the NFT list
+    setShowUploadForm(false);
+    // You could add a success notification here
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">🧬 GeneNFT</h1>
-              <p className="text-gray-600">XML-Based NFT Metadata Platform</p>
+    <div className="min-h-screen bg-black text-white">
+      {/* Particle Background */}
+      <ParticleBackground />
+      
+      {/* Hero Section */}
+      <Hero />
+      
+      {/* Navigation */}
+      <motion.nav
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 1 }}
+        className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-cyan-500/20"
+      >
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex justify-between items-center">
+            <div className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+              GeneNFT
             </div>
-            <div className="flex items-center space-x-4">
-              <Connect />
+            <div className="flex space-x-8">
               <button
-                onClick={() => setShowUploadForm(!showUploadForm)}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                onClick={() => setShowUploadForm(false)}
+                className="text-cyan-300 hover:text-cyan-400 transition-colors"
               >
-                {showUploadForm ? 'Hide Upload Form' : 'Upload XML & Mint NFT'}
+                Collection
+              </button>
+              <button
+                onClick={() => setShowUploadForm(true)}
+                className="text-cyan-300 hover:text-cyan-400 transition-colors"
+              >
+                Upload
               </button>
             </div>
           </div>
         </div>
-      </header>
+      </motion.nav>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Upload Form */}
-        {showUploadForm && (
-          <div className="mb-8">
-            <XMLUploadForm onUploadSuccess={handleUploadSuccess} />
-          </div>
+      {/* Main Content */}
+      <main className="pt-20">
+        {showUploadForm ? (
+          <UploadForm onUploadSuccess={handleUploadSuccess} />
+        ) : (
+          <NFTCollection />
         )}
+      </main>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-lg shadow p-6 text-center">
-            <div className="text-2xl font-bold text-blue-600">{nfts.length}</div>
-            <div className="text-gray-600">Total NFTs</div>
-          </div>
-          <div className="bg-white rounded-lg shadow p-6 text-center">
-            <div className="text-2xl font-bold text-yellow-600">
-              {nfts.filter(nft => nft.rarity === 'Legendary').length}
+      {/* Footer */}
+      <motion.footer
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        viewport={{ once: true }}
+        className="py-16 bg-black/60 border-t border-cyan-500/20"
+      >
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            <div>
+              <h3 className="text-xl font-bold text-white mb-4">GeneNFT</h3>
+              <p className="text-cyan-300/60">
+                Revolutionizing genetic research through blockchain technology and AI-generated art.
+              </p>
             </div>
-            <div className="text-gray-600">Legendary</div>
-          </div>
-          <div className="bg-white rounded-lg shadow p-6 text-center">
-            <div className="text-2xl font-bold text-purple-600">
-              {nfts.filter(nft => nft.rarity === 'Epic').length}
+            <div>
+              <h3 className="text-xl font-bold text-white mb-4">Technology</h3>
+              <ul className="text-cyan-300/60 space-y-2">
+                <li>Blockchain NFTs</li>
+                <li>AI Art Generation</li>
+                <li>Genetic Data Processing</li>
+                <li>Research Collaboration</li>
+              </ul>
             </div>
-            <div className="text-gray-600">Epic</div>
-          </div>
-          <div className="bg-white rounded-lg shadow p-6 text-center">
-            <div className="text-2xl font-bold text-cyan-600">
-              {nfts.filter(nft => nft.rarity === 'Rare').length}
+            <div>
+              <h3 className="text-xl font-bold text-white mb-4">Connect</h3>
+              <ul className="text-cyan-300/60 space-y-2">
+                <li>Documentation</li>
+                <li>API Reference</li>
+                <li>Community</li>
+                <li>Support</li>
+              </ul>
             </div>
-            <div className="text-gray-600">Rare</div>
+          </div>
+          <div className="border-t border-cyan-500/20 pt-8">
+            <p className="text-cyan-300/40">
+              © 2024 GeneNFT. Built for the future of genetic research.
+            </p>
           </div>
         </div>
-
-        {/* NFT Grid */}
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">XML NFT Collection</h2>
-          
-          {isLoading ? (
-            <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="mt-4 text-gray-600">Loading NFTs...</p>
-            </div>
-          ) : error ? (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-              <p className="text-red-800">{error}</p>
-              <button
-                onClick={fetchNFTs}
-                className="mt-4 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
-              >
-                Retry
-              </button>
-            </div>
-          ) : nfts.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-600">No NFTs found. Upload your first XML file!</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {nfts.map((nft) => (
-                <NFTCard key={nft.id} nft={nft} />
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+      </motion.footer>
     </div>
   );
 }
