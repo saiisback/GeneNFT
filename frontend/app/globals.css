@@ -230,6 +230,11 @@ html {
   color: #f5f5f5;
 }
 
+/* Custom Z-Index Utilities */
+.z-15 {
+  z-index: 15;
+}
+
 /* UK Aesthetic Utilities */
 .text-elegant {
   font-family: 'Playfair Display', serif;

@@ -35,24 +35,24 @@ export default function ParticleBackground() {
           },
           modes: {
             push: {
-              quantity: 4,
+              quantity: 6,
             },
             repulse: {
-              distance: 200,
-              duration: 0.4,
+              distance: 150,
+              duration: 0.3,
             },
           },
         },
         particles: {
           color: {
-            value: ['#00ffff', '#ff00ff', '#ffff00'],
+            value: ['#f5f5f5', '#d4d4d4', '#cd853f', '#daa520', '#ffd700', '#b8860b'],
           },
           links: {
-            color: '#00ffff',
+            color: '#daa520',
             distance: 150,
             enable: true,
-            opacity: 0.3,
-            width: 1,
+            opacity: 0.4,
+            width: 1.2,
           },
           move: {
             direction: 'none',
@@ -61,7 +61,7 @@ export default function ParticleBackground() {
               default: 'bounce',
             },
             random: false,
-            speed: 1,
+            speed: 0.8,
             straight: false,
           },
           number: {
@@ -69,13 +69,21 @@ export default function ParticleBackground() {
               enable: true,
               area: 800,
             },
-            value: 80,
+            value: 60,
           },
           opacity: {
-            value: 0.5,
+            value: 0.8,
           },
           shape: {
             type: 'circle',
+          },
+          twinkle: {
+            particles: {
+              enable: true,
+              color: '#ffd700',
+              frequency: 0.05,
+              opacity: 1,
+            },
           },
           size: {
             value: { min: 1, max: 3 },
@@ -83,7 +91,7 @@ export default function ParticleBackground() {
         },
         detectRetina: true,
       }}
-      className="absolute inset-0 -z-20"
+      className="absolute inset-0 z-10"
     />
   );
 }

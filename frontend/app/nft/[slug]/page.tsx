@@ -7,8 +7,9 @@ import { NFT } from '@/app/types';
 import { nftApi } from '@/app/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, ExternalLink, Copy, Dna, Hash, User, Calendar, Shield, Zap } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Copy, Dna, Hash, Shield, Zap } from 'lucide-react';
 import Link from 'next/link';
+import ParticleBackground from '@/components/ParticleBackground';
 
 export default function NFTPage() {
   const params = useParams();
@@ -56,25 +57,26 @@ export default function NFTPage() {
     }
   };
 
-  const getRarityIcon = (rarity: string) => {
+  const getRarityLabel = (rarity: string) => {
     switch (rarity.toLowerCase()) {
       case 'legendary':
-        return '👑';
+        return 'Legendary';
       case 'epic':
-        return '⭐';
+        return 'Epic';
       case 'rare':
-        return '💎';
+        return 'Rare';
       default:
-        return '🔰';
+        return 'Common';
     }
   };
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-cyan-500 mx-auto"></div>
-          <p className="mt-4 text-cyan-300 text-lg font-tech">Loading NFT Data...</p>
+        <ParticleBackground />
+        <div className="text-center relative z-10">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white/30 mx-auto"></div>
+          <p className="mt-4 text-white/70 text-lg font-cursive">Loading NFT Data...</p>
         </div>
       </div>
     );
@@ -83,9 +85,10 @@ export default function NFTPage() {
   if (error || !nft) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-center">
+        <ParticleBackground />
+        <div className="text-center relative z-10">
           <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-6 max-w-md">
-            <p className="text-red-400 text-lg">{error || 'NFT not found'}</p>
+            <p className="text-red-400 text-lg font-cursive">{error || 'NFT not found'}</p>
             <Link href="/">
               <Button variant="outline" className="mt-4">
                 <ArrowLeft className="w-4 h-4 mr-2" />
@@ -99,20 +102,23 @@ export default function NFTPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white matrix-bg">
+    <div className="min-h-screen bg-black text-white">
+      {/* Particle Background */}
+      <ParticleBackground />
+      
       {/* Header */}
       <motion.header
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-cyan-500/20"
+        className="fixed top-0 left-0 right-0 z-40 bg-black/80 backdrop-blur-md border-b border-white/20"
       >
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
-            <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent font-sci-fi">
+            <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent font-elegant">
               GeneNFT
             </Link>
             <Link href="/">
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="border-white/30 text-white hover:bg-white/10 hover:border-white/50">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Collection
               </Button>
@@ -122,7 +128,7 @@ export default function NFTPage() {
       </motion.header>
 
       {/* Main Content */}
-      <main className="pt-24 pb-20">
+      <main className="pt-24 pb-20 relative z-10">
         <div className="max-w-6xl mx-auto px-4">
           {/* NFT Header */}
           <motion.div
@@ -132,14 +138,14 @@ export default function NFTPage() {
             className="text-center mb-12"
           >
             <div className="inline-flex items-center space-x-3 mb-4">
-              <span className={`px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r ${getRarityColor(nft.rarity)} text-white shadow-lg`}>
-                {getRarityIcon(nft.rarity)} {nft.rarity}
+              <span className={`px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r ${getRarityColor(nft.rarity)} text-white shadow-lg font-cursive`}>
+                {getRarityLabel(nft.rarity)}
               </span>
             </div>
-            <h1 className="text-5xl md:text-6xl font-sci-fi font-black mb-4">
-              <span className="gradient-text-cyan">{nft.metadata.name}</span>
+            <h1 className="text-5xl md:text-6xl font-elegant font-black mb-4">
+              <span className="gradient-text">{nft.metadata.name}</span>
             </h1>
-            <p className="text-xl text-cyan-300/80 max-w-3xl mx-auto font-tech">
+            <p className="text-xl text-white/70 max-w-3xl mx-auto font-cursive">
               {nft.metadata.description}
             </p>
           </motion.div>
@@ -152,7 +158,7 @@ export default function NFTPage() {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="space-y-6"
             >
-              <Card className="overflow-hidden border-cyan-500/30 bg-black/60 backdrop-blur-sm">
+              <Card className="overflow-hidden border-white/20 bg-black/60 backdrop-blur-sm">
                 <div className="relative h-96 overflow-hidden">
                   {nft.metadata.image ? (
                     <img
@@ -161,26 +167,26 @@ export default function NFTPage() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-cyan-900/20 to-purple-900/20 flex items-center justify-center">
-                      <Dna className="w-24 h-24 text-cyan-400/50" />
+                    <div className="w-full h-full bg-gradient-to-br from-white/5 to-white/10 flex items-center justify-center">
+                      <Dna className="w-24 h-24 text-white/30" />
                     </div>
                   )}
                   
-                  {/* Hologram Effect Overlay */}
-                  <div className="absolute inset-0 hologram-effect opacity-30" />
+                  {/* Subtle Pattern Overlay */}
+                  <div className="absolute inset-0 subtle-pattern opacity-20" />
                 </div>
               </Card>
 
               {/* External Links */}
               {nft.metadata.external_url && (
-                <Card className="border-purple-500/30 bg-black/60 backdrop-blur-sm">
+                <Card className="border-white/20 bg-black/60 backdrop-blur-sm">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="text-lg font-semibold text-white mb-2">External Reference</h3>
-                        <p className="text-purple-300/70 text-sm">{nft.metadata.external_url}</p>
+                        <h3 className="text-lg font-semibold text-white mb-2 font-elegant">External Reference</h3>
+                        <p className="text-white/70 text-sm font-cursive">{nft.metadata.external_url}</p>
                       </div>
-                      <Button variant="outline" size="sm" asChild>
+                      <Button variant="outline" size="sm" asChild className="border-white/30 text-white hover:bg-white/10 hover:border-white/50">
                         <a href={nft.metadata.external_url} target="_blank" rel="noopener noreferrer">
                           <ExternalLink className="w-4 h-4 mr-2" />
                           Visit
@@ -200,49 +206,49 @@ export default function NFTPage() {
               className="space-y-6"
             >
               {/* Basic Info */}
-              <Card className="border-cyan-500/30 bg-black/60 backdrop-blur-sm">
+              <Card className="border-white/20 bg-black/60 backdrop-blur-sm">
                 <CardHeader>
-                  <CardTitle className="text-2xl text-white font-sci-fi flex items-center">
-                    <Zap className="w-6 h-6 text-cyan-400 mr-3" />
+                  <CardTitle className="text-2xl text-white font-elegant flex items-center">
+                    <Zap className="w-6 h-6 text-white/80 mr-3" />
                     NFT Information
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="flex justify-between items-center p-3 bg-cyan-500/10 rounded-lg border border-cyan-500/20">
-                    <span className="text-cyan-300/80 font-tech">Token ID:</span>
+                  <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg border border-white/20">
+                    <span className="text-white/80 font-cursive">Token ID:</span>
                     <div className="flex items-center space-x-2">
-                      <span className="font-mono text-cyan-300">{nft.token_id}</span>
+                      <span className="font-mono text-white/80">{nft.token_id}</span>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => copyToClipboard(nft.token_id, 'token')}
-                        className="text-cyan-400 hover:text-cyan-300"
+                        className="text-white/60 hover:text-white/80"
                       >
                         <Copy className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
                   
-                  <div className="flex justify-between items-center p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
-                    <span className="text-purple-300/80 font-tech">Owner:</span>
+                  <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg border border-white/20">
+                    <span className="text-white/80 font-cursive">Owner:</span>
                     <div className="flex items-center space-x-2">
-                      <span className="font-mono text-purple-300 text-sm">
+                      <span className="font-mono text-white/80 text-sm">
                         {nft.owner.slice(0, 8)}...{nft.owner.slice(-6)}
                       </span>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => copyToClipboard(nft.owner, 'owner')}
-                        className="text-purple-400 hover:text-purple-300"
+                        className="text-white/60 hover:text-white/80"
                       >
                         <Copy className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
                   
-                  <div className="flex justify-between items-center p-3 bg-magenta-500/10 rounded-lg border border-magenta-500/20">
-                    <span className="text-magenta-300/80 font-tech">Created:</span>
-                    <span className="text-magenta-300 font-tech">
+                  <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg border border-white/20">
+                    <span className="text-white/80 font-cursive">Created:</span>
+                    <span className="text-white/80 font-cursive">
                       {new Date(nft.created_at).toLocaleDateString()}
                     </span>
                   </div>
@@ -250,40 +256,40 @@ export default function NFTPage() {
               </Card>
 
               {/* XML Hash */}
-              <Card className="border-green-500/30 bg-black/60 backdrop-blur-sm">
+              <Card className="border-white/20 bg-black/60 backdrop-blur-sm">
                 <CardHeader>
-                  <CardTitle className="text-2xl text-white font-sci-fi flex items-center">
-                    <Hash className="w-6 h-6 text-green-400 mr-3" />
+                  <CardTitle className="text-2xl text-white font-elegant flex items-center">
+                    <Hash className="w-6 h-6 text-white/80 mr-3" />
                     Data Hash
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+                  <div className="p-3 bg-white/5 rounded-lg border border-white/20">
                     <div className="flex items-center justify-between">
-                      <span className="font-mono text-green-300 text-sm break-all">
+                      <span className="font-mono text-white/80 text-sm break-all">
                         {nft.xml_hash}
                       </span>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => copyToClipboard(nft.xml_hash, 'hash')}
-                        className="text-green-400 hover:text-green-300 ml-2"
+                        className="text-white/60 hover:text-white/80 ml-2"
                       >
                         <Copy className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
-                  <p className="text-green-300/60 text-sm mt-2 font-tech">
+                  <p className="text-white/60 text-sm mt-2 font-cursive">
                     This hash uniquely identifies the XML data content
                   </p>
                 </CardContent>
               </Card>
 
               {/* Attributes */}
-              <Card className="border-yellow-500/30 bg-black/60 backdrop-blur-sm">
+              <Card className="border-white/20 bg-black/60 backdrop-blur-sm">
                 <CardHeader>
-                  <CardTitle className="text-2xl text-white font-sci-fi flex items-center">
-                    <Shield className="w-6 h-6 text-yellow-400 mr-3" />
+                  <CardTitle className="text-2xl text-white font-elegant flex items-center">
+                    <Shield className="w-6 h-6 text-white/80 mr-3" />
                     Attributes
                   </CardTitle>
                 </CardHeader>
@@ -292,12 +298,12 @@ export default function NFTPage() {
                     {nft.metadata.attributes.map((attr, idx) => (
                       <div
                         key={idx}
-                        className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg"
+                        className="p-3 bg-white/5 border border-white/20 rounded-lg"
                       >
-                        <div className="text-yellow-400 font-semibold text-sm font-tech">
+                        <div className="text-white/80 font-semibold text-sm font-cursive">
                           {attr.trait_type}
                         </div>
-                        <div className="text-yellow-300/80 text-sm font-tech">
+                        <div className="text-white/60 text-sm font-cursive">
                           {attr.value}
                         </div>
                       </div>
@@ -307,21 +313,21 @@ export default function NFTPage() {
               </Card>
 
               {/* License & Provenance */}
-              <Card className="border-blue-500/30 bg-black/60 backdrop-blur-sm">
+              <Card className="border-white/20 bg-black/60 backdrop-blur-sm">
                 <CardHeader>
-                  <CardTitle className="text-2xl text-white font-sci-fi flex items-center">
-                    <Shield className="w-6 h-6 text-blue-400 mr-3" />
+                  <CardTitle className="text-2xl text-white font-elegant flex items-center">
+                    <Shield className="w-6 h-6 text-white/80 mr-3" />
                     Legal Information
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                    <div className="text-blue-400 font-semibold text-sm font-tech mb-1">License</div>
-                    <div className="text-blue-300/80 text-sm font-tech">{nft.metadata.license}</div>
+                  <div className="p-3 bg-white/5 rounded-lg border border-white/20">
+                    <div className="text-white/80 font-semibold text-sm font-cursive mb-1">License</div>
+                    <div className="text-white/60 text-sm font-cursive">{nft.metadata.license}</div>
                   </div>
-                  <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                    <div className="text-blue-400 font-semibold text-sm font-tech mb-1">Provenance</div>
-                    <div className="text-blue-300/80 text-sm font-tech">{nft.metadata.provenance}</div>
+                  <div className="p-3 bg-white/5 rounded-lg border border-white/20">
+                    <div className="text-white/80 font-semibold text-sm font-cursive mb-1">Provenance</div>
+                    <div className="text-white/60 text-sm font-cursive">{nft.metadata.provenance}</div>
                   </div>
                 </CardContent>
               </Card>
@@ -334,7 +340,7 @@ export default function NFTPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="fixed bottom-8 right-8 bg-green-500/90 text-white px-4 py-2 rounded-lg shadow-lg"
+              className="fixed bottom-8 right-8 bg-white/10 border border-white/20 text-white px-4 py-2 rounded-lg shadow-lg backdrop-blur-sm"
             >
               {copiedField === 'token' && 'Token ID copied!'}
               {copiedField === 'owner' && 'Owner address copied!'}

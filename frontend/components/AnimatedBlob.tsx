@@ -34,7 +34,7 @@ function Blob() {
 
 export default function AnimatedBlob() {
   return (
-    <div className="absolute inset-0 -z-10">
+    <div className="bg-transparent absolute inset-0 -z-20">
       <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} intensity={1} color="#00ffff" />

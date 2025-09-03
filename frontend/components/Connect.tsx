@@ -10,9 +10,15 @@ const client = createThirdwebClient({
 
 export default function Connect() {
   const [connectedAddress, setConnectedAddress] = useState<string | null>(null);
+  const [isConnecting, setIsConnecting] = useState(false);
 
   const truncateAddress = (address: string) => {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    // You could add a toast notification here
   };
 
   return (
@@ -21,6 +27,7 @@ export default function Connect() {
         client={client}
         auth={{
           getLoginPayload: async (params) => {
+            setIsConnecting(true);
             const address = params.address;
             // fetch the login payload here using address from your server
             return {
@@ -40,10 +47,10 @@ export default function Connect() {
             // send the signed login payload (params) to your server to verify the signature
             console.log('Login params:', params);
             // Extract and store the connected address from the login payload
-            // We'll get the address from the getLoginPayload response
             if (params.payload && params.payload.address) {
               setConnectedAddress(params.payload.address);
             }
+            setIsConnecting(false);
           },
           isLoggedIn: async (address: string) => {
             // fetch the user's login status from your server
@@ -53,30 +60,38 @@ export default function Connect() {
             // send a logout request to your server
             console.log('Logout requested');
             setConnectedAddress(null);
+            setIsConnecting(false);
           },
         }}
       />
       
       {/* Show connected wallet address */}
       {connectedAddress && (
-        <div className="flex items-center space-x-2 bg-green-50 border border-green-200 px-3 py-2 rounded-lg">
-          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-          <span className="text-sm font-medium text-green-800">Connected</span>
-          <div className="flex items-center space-x-2 bg-white px-2 py-1 rounded border">
-            <span className="text-xs font-mono text-gray-700">
+        <div className="flex items-center space-x-3 bg-gradient-to-r from-white/10 to-white/5 border border-white/20 px-4 py-3 rounded-xl backdrop-blur-sm">
+          <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+          <span className="text-sm font-semibold text-white font-cursive">Connected</span>
+          <div className="flex items-center space-x-2 bg-white/10 px-3 py-1.5 rounded-lg border border-white/20">
+            <span className="text-sm font-mono text-white font-medium">
               {truncateAddress(connectedAddress)}
             </span>
             <button
-              onClick={() => {
-                navigator.clipboard.writeText(connectedAddress);
-                // You could add a toast notification here
-              }}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              onClick={() => copyToClipboard(connectedAddress)}
+              className="text-white/60 hover:text-white transition-colors p-1 rounded hover:bg-white/10"
               title="Copy address"
             >
-              📋
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Loading state */}
+      {isConnecting && (
+        <div className="flex items-center space-x-2 bg-white/5 border border-white/20 px-3 py-2 rounded-lg">
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white/60"></div>
+          <span className="text-sm text-white/60 font-cursive">Connecting...</span>
         </div>
       )}
     </div>

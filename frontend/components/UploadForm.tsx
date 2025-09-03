@@ -73,8 +73,27 @@ export default function UploadForm({ onUploadSuccess }: UploadFormProps) {
     setError('');
 
     try {
-      // Simulate upload for demo
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Create FormData for file upload
+      const uploadData = new FormData();
+      uploadData.append('xml_file', xmlFile);
+      uploadData.append('name', formData.name);
+      uploadData.append('description', formData.description);
+      uploadData.append('external_url', formData.external_url);
+      uploadData.append('license', formData.license);
+      uploadData.append('wallet_address', formData.wallet_address);
+
+      // Upload to backend
+      const response = await fetch('http://localhost:3001/api/nfts', {
+        method: 'POST',
+        body: uploadData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.log('Upload successful:', result);
       
       // Reset form
       setFormData({
@@ -88,7 +107,7 @@ export default function UploadForm({ onUploadSuccess }: UploadFormProps) {
       
       onUploadSuccess?.();
     } catch (err) {
-      setError('Failed to upload XML file. Please try again.');
+      setError('Failed to upload XML file. Please make sure the backend is running and try again.');
       console.error('Upload error:', err);
     } finally {
       setIsUploading(false);
@@ -98,7 +117,7 @@ export default function UploadForm({ onUploadSuccess }: UploadFormProps) {
   return (
     <section className="py-20 bg-black relative overflow-hidden">
       {/* Background Pattern */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_70%,rgba(147,51,234,0.1),transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_70%,rgba(255,255,255,0.02),transparent_50%)]" />
       
       <div className="max-w-4xl mx-auto px-4 relative z-10">
         {/* Section Header */}
@@ -109,12 +128,12 @@ export default function UploadForm({ onUploadSuccess }: UploadFormProps) {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-5xl md:text-6xl font-bold text-white mb-6">
-            <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-magenta-400 bg-clip-text text-transparent">
-              Upload & Mint
-            </span>
+          <h2 className="text-5xl md:text-6xl font-elegant font-black text-white mb-6">
+            <span className="gradient-text">Upload</span>{' '}
+            <span className="gradient-text-accent">&</span>{' '}
+            <span className="gradient-text-gold">Mint</span>
           </h2>
-          <p className="text-xl text-cyan-300/80 max-w-2xl mx-auto">
+          <p className="text-xl text-white/70 max-w-2xl mx-auto font-cursive">
             Transform your genetic research data into unique, verifiable NFTs. 
             Each upload creates a one-of-a-kind digital asset with AI-generated visual art.
           </p>
@@ -140,13 +159,13 @@ export default function UploadForm({ onUploadSuccess }: UploadFormProps) {
           transition={{ duration: 0.8, delay: 0.4 }}
           viewport={{ once: true }}
         >
-          <Card className="border-cyan-500/30 bg-black/60 backdrop-blur-sm">
+          <Card className="border-white/20 bg-black/60 backdrop-blur-sm">
             <CardHeader className="text-center pb-6">
-              <CardTitle className="text-2xl text-white flex items-center justify-center">
-                <Upload className="w-6 h-6 mr-2 text-cyan-400" />
+              <CardTitle className="text-2xl text-white flex items-center justify-center font-elegant">
+                <Upload className="w-6 h-6 mr-2 text-white/80" />
                 Create Your Genetic NFT
               </CardTitle>
-              <p className="text-cyan-300/70">
+              <p className="text-white/70 font-cursive">
                 Fill in the details and upload your XML file to mint a unique NFT
               </p>
             </CardHeader>
@@ -159,7 +178,7 @@ export default function UploadForm({ onUploadSuccess }: UploadFormProps) {
                   onClick={generateMockData}
                   variant="outline"
                   size="sm"
-                  className="group"
+                  className="group border-white/30 text-white hover:bg-white/10 hover:border-white/50"
                 >
                   <Sparkles className="w-4 h-4 mr-2 group-hover:rotate-180 transition-transform duration-500" />
                   Generate Sample Data
@@ -169,7 +188,7 @@ export default function UploadForm({ onUploadSuccess }: UploadFormProps) {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-cyan-300 mb-2">
+                    <label className="block text-sm font-medium text-white/80 mb-2 font-cursive">
                       NFT Name *
                     </label>
                     <input
@@ -178,20 +197,20 @@ export default function UploadForm({ onUploadSuccess }: UploadFormProps) {
                       value={formData.name}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-4 py-3 bg-black/40 border border-cyan-500/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-400 text-white placeholder-cyan-300/30"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/40 text-white placeholder-white/30 font-cursive"
                       placeholder="Enter NFT name"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-cyan-300 mb-2">
+                    <label className="block text-sm font-medium text-white/80 mb-2 font-cursive">
                       License
                     </label>
                     <select
                       name="license"
                       value={formData.license}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 bg-black/40 border border-cyan-500/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-400 text-white"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/40 text-white font-cursive"
                     >
                       <option value="MIT">MIT License</option>
                       <option value="CC0">Creative Commons Zero</option>
@@ -201,7 +220,7 @@ export default function UploadForm({ onUploadSuccess }: UploadFormProps) {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-cyan-300 mb-2">
+                  <label className="block text-sm font-medium text-white/80 mb-2 font-cursive">
                     Description *
                   </label>
                   <textarea
@@ -210,13 +229,13 @@ export default function UploadForm({ onUploadSuccess }: UploadFormProps) {
                     onChange={handleInputChange}
                     required
                     rows={3}
-                    className="w-full px-4 py-3 bg-black/40 border border-cyan-500/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-400 text-white placeholder-cyan-300/30"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/40 text-white placeholder-white/30 font-cursive"
                     placeholder="Describe your genetic data"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-cyan-300 mb-2">
+                  <label className="block text-sm font-medium text-white/80 mb-2 font-cursive">
                     External URL
                   </label>
                   <input
@@ -224,16 +243,16 @@ export default function UploadForm({ onUploadSuccess }: UploadFormProps) {
                     name="external_url"
                     value={formData.external_url}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 bg-black/40 border border-cyan-500/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-400 text-white placeholder-cyan-300/30"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/40 text-white placeholder-white/30 font-cursive"
                     placeholder="https://example.com"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-cyan-300 mb-2">
+                  <label className="block text-sm font-medium text-white/80 mb-2 font-cursive">
                     XML File *
                   </label>
-                  <div className="border-2 border-dashed border-cyan-500/30 rounded-lg p-6 text-center hover:border-cyan-400/50 transition-colors">
+                  <div className="border-2 border-dashed border-white/20 rounded-lg p-6 text-center hover:border-white/40 transition-colors">
                     <input
                       type="file"
                       accept=".xml"
@@ -243,11 +262,11 @@ export default function UploadForm({ onUploadSuccess }: UploadFormProps) {
                       id="xml-file"
                     />
                     <label htmlFor="xml-file" className="cursor-pointer">
-                      <FileText className="w-12 h-12 text-cyan-400/50 mx-auto mb-4" />
-                      <p className="text-cyan-300 mb-2">
+                      <FileText className="w-12 h-12 text-white/40 mx-auto mb-4" />
+                      <p className="text-white/80 mb-2 font-cursive">
                         {xmlFile ? `Selected: ${xmlFile.name}` : 'Click to select XML file'}
                       </p>
-                      <p className="text-cyan-300/60 text-sm">
+                      <p className="text-white/50 text-sm font-cursive">
                         Supports .xml files up to 10MB
                       </p>
                     </label>
@@ -255,7 +274,7 @@ export default function UploadForm({ onUploadSuccess }: UploadFormProps) {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-cyan-300 mb-2">
+                  <label className="block text-sm font-medium text-white/80 mb-2 font-cursive">
                     Wallet Address (Mock)
                   </label>
                   <input
@@ -263,17 +282,17 @@ export default function UploadForm({ onUploadSuccess }: UploadFormProps) {
                     name="wallet_address"
                     value={formData.wallet_address}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 bg-black/40 border border-cyan-500/30 rounded-lg text-cyan-300/60 cursor-not-allowed"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white/50 cursor-not-allowed font-mono"
                     readOnly
                   />
-                  <p className="text-xs text-cyan-300/40 mt-1">
+                  <p className="text-xs text-white/40 mt-1 font-cursive">
                     Using mock wallet address for showcase purposes
                   </p>
                 </div>
 
                 {error && (
                   <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
-                    <p className="text-red-400 text-sm">{error}</p>
+                    <p className="text-red-400 text-sm font-cursive">{error}</p>
                   </div>
                 )}
 
@@ -281,7 +300,7 @@ export default function UploadForm({ onUploadSuccess }: UploadFormProps) {
                   type="submit"
                   disabled={isUploading}
                   size="xl"
-                  className="w-full group"
+                  className="w-full group elegant-border bg-white/5 hover:bg-white/10 text-white font-cursive font-semibold"
                 >
                   {isUploading ? (
                     <>
@@ -308,20 +327,20 @@ export default function UploadForm({ onUploadSuccess }: UploadFormProps) {
           viewport={{ once: true }}
           className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8"
         >
-          <div className="text-center p-6 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
-            <Dna className="w-12 h-12 text-cyan-400 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">Genetic Data</h3>
-            <p className="text-cyan-300/60">Upload XML files containing genetic sequences and research data</p>
+          <div className="text-center p-6 rounded-lg bg-white/5 border border-white/20">
+            <Dna className="w-12 h-12 text-white/60 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-white mb-2 font-elegant">Genetic Data</h3>
+            <p className="text-white/60 font-cursive">Upload XML files containing genetic sequences and research data</p>
           </div>
-          <div className="text-center p-6 rounded-lg bg-purple-500/10 border border-purple-500/20">
-            <Brain className="w-12 h-12 text-purple-400 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">AI Generation</h3>
-            <p className="text-purple-300/60">Automatic visual art generation based on your data content</p>
+          <div className="text-center p-6 rounded-lg bg-white/5 border border-white/20">
+            <Brain className="w-12 h-12 text-white/60 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-white mb-2 font-elegant">AI Generation</h3>
+            <p className="text-white/60 font-cursive">Automatic visual art generation based on your data content</p>
           </div>
-          <div className="text-center p-6 rounded-lg bg-magenta-500/10 border border-magenta-500/20">
-            <Code className="w-12 h-12 text-magenta-400 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">Blockchain</h3>
-            <p className="text-magenta-300/60">Immutable NFT storage with verifiable ownership</p>
+          <div className="text-center p-6 rounded-lg bg-white/5 border border-white/20">
+            <Code className="w-12 h-12 text-white/60 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-white mb-2 font-elegant">Blockchain</h3>
+            <p className="text-white/60 font-cursive">Immutable NFT storage with verifiable ownership</p>
           </div>
         </motion.div>
       </div>
