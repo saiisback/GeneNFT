@@ -1,29 +1,39 @@
+export interface Attribute {
+  trait_type: string;
+  value: string;
+}
+
+export interface NFTMetadata {
+  name: string;
+  description: string;
+  image: string; // Base64 encoded image or URL
+  attributes: Attribute[];
+  external_url: string;
+  license: string;
+  provenance: string;
+}
+
 export interface NFT {
   id: string;
-  species_name: string;
-  dna_hash: string;
-  genome_data: string;
-  mint_date: string;
-  blockchain_tx: string;
-  token_uri: string;
+  token_id: string;
+  metadata: NFTMetadata;
+  xml_content: string;
+  xml_hash: string;
   owner: string;
   rarity: string;
+  created_at: string;
 }
 
-export interface MintRequest {
-  species_name: string;
-  dna_hash: string;
-  genome_data: string;
+export interface XMLUploadRequest {
+  name: string;
+  description: string;
+  external_url: string;
+  license: string;
+  xml_file: File;
+  wallet_address: string;
 }
 
-export interface ApiResponse<T> {
-  success: boolean;
-  data: T;
+export interface XMLUploadResponse {
   message: string;
-}
-
-export interface MintResponse {
-  success: boolean;
   nft: NFT;
-  message: string;
 }

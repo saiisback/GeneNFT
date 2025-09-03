@@ -1,37 +1,46 @@
 use serde::{Deserialize, Serialize};
-use chrono::{DateTime, Utc};
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Attribute {
+    pub trait_type: String,
+    pub value: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct NFTMetadata {
+    pub name: String,
+    pub description: String,
+    pub image: String, // Base64 encoded image or URL
+    pub attributes: Vec<Attribute>,
+    pub external_url: String,
+    pub license: String,
+    pub provenance: String,
+}
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct NFT {
     pub id: String,
-    pub species_name: String,
-    pub dna_hash: String,
-    pub genome_data: String,
-    pub mint_date: DateTime<Utc>,
-    pub blockchain_tx: String,
-    pub token_uri: String,
+    pub token_id: String,
+    pub metadata: NFTMetadata,
+    pub xml_content: String,
+    pub xml_hash: String,
     pub owner: String,
     pub rarity: String,
+    pub created_at: String,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct MintRequest {
-    pub species_name: String,
-    pub dna_hash: String,
-    pub genome_data: String,
+pub struct XMLUploadRequest {
+    pub name: String,
+    pub description: String,
+    pub external_url: String,
+    pub license: String,
+    pub xml_file: Vec<u8>,
+    pub wallet_address: String,
 }
 
 #[derive(Debug, Serialize)]
-pub struct MintResponse {
-    pub success: bool,
+pub struct XMLUploadResponse {
+    pub message: String,
     pub nft: NFT,
-    pub message: String,
-}
-
-#[derive(Debug, Serialize)]
-pub struct ApiResponse<T> {
-    pub success: bool,
-    pub data: T,
-    pub message: String,
 }

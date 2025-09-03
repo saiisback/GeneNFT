@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GeneNFT Frontend
 
-## Getting Started
+## Setup Instructions
 
-First, run the development server:
-
+### 1. Install Dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Configure Thirdweb
+1. Go to [Thirdweb Dashboard](https://thirdweb.com/dashboard)
+2. Create a new project or use an existing one
+3. Copy your Client ID
+4. Create a `.env.local` file in the frontend directory:
+```bash
+# Thirdweb Client ID (public - safe to expose)
+NEXT_PUBLIC_THIRDWEB_CLIENT_ID=your-actual-client-id-here
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+# Backend API URL
+NEXT_PUBLIC_API_URL=http://127.0.0.1:3002
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. Start Development Server
+```bash
+npm run dev
+```
 
-## Learn More
+## Features
+- Connect wallet using Thirdweb SDK
+- Upload XML files and mint NFTs
+- View NFT collection with rich metadata
+- Wallet address integration with backend
 
-To learn more about Next.js, take a look at the following resources:
+## Wallet Integration
+The app now includes:
+- Wallet connection button in the header
+- Connected wallet address display
+- Wallet address sent to backend when minting NFTs
+- NFT ownership tied to connected wallet
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Environment Variables
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **NEXT_PUBLIC_THIRDWEB_CLIENT_ID**: Your Thirdweb Client ID (required)
+- **NEXT_PUBLIC_API_URL**: Backend API URL (defaults to port 3002)
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Backend Port
+The backend runs on port 3002 to avoid conflicts with other services.
