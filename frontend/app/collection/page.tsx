@@ -258,6 +258,7 @@ export default function CollectionPage() {
           transition={{ duration: 0.8, delay: 0.6 }}
           className="max-w-7xl mx-auto px-4 mb-12"
         >
+
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="bg-white/5 border border-white/20 rounded-2xl p-6 text-center glass-effect">
               <h3 className="text-2xl font-bold text-white mb-2 font-elegant">{collection.owned_nfts.length}</h3>

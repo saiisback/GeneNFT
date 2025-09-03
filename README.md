@@ -1,105 +1,247 @@
-# 🧬 GeneNFT - Decentralized DNA Mock Platform
+# 🧬 GeneNFT - Blockchain-Powered Genetic Research Platform
 
-A mock biodiversity NFT platform built for hackathons that simulates minting NFTs for species DNA data without requiring Solidity or real blockchain.
+> **Revolutionizing genetic research through blockchain technology and AI-generated art**
 
-## 🚀 Quick Start
+[![Rust](https://img.shields.io/badge/Rust-000000?style=for-the-badge&logo=rust&logoColor=white)](https://rust-lang.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![ThirdWeb](https://img.shields.io/badge/ThirdWeb-000000?style=for-the-badge&logo=web3.js&logoColor=white)](https://thirdweb.com/)
 
-### Prerequisites
-- Rust (latest stable version)
-- Node.js 18+ and npm
-- Git
+## 🌟 Overview
 
-### Backend (Rust + Axum)
-```bash
-cd backend
-cargo run
-```
-The backend will start on `http://127.0.0.1:3001`
+GeneNFT is a cutting-edge platform that combines **genetic research**, **blockchain technology**, and **AI-generated visual art**. It allows researchers to:
 
-### Frontend (Next.js)
-```bash
-cd frontend
-npm install
-npm run dev
-```
-The frontend will start on `http://localhost:3000`
+- **Mint NFTs** from genetic data (XML files)
+- **Trade genetic sequences** on a decentralized marketplace
+- **Visualize DNA data** with AI-generated artwork
+- **Collaborate globally** through blockchain-based ownership
+
+## 🚀 Features
+
+### 🧪 Core Functionality
+- **XML to NFT Conversion**: Upload genetic data files and mint unique NFTs
+- **AI Art Generation**: Automatic visual representation of genetic sequences
+- **Rarity System**: Legendary, Epic, Rare, and Common classifications
+- **Blockchain Integration**: ThirdWeb wallet connection and transaction handling
+
+### 🏪 Marketplace
+- **NFT Trading**: Buy, sell, and trade genetic NFTs
+- **Real-time Stats**: Market volume, floor prices, and transaction history
+- **Collection Management**: View owned, listed, and purchased NFTs
+- **Secure Transactions**: Blockchain-based ownership transfer
+
+### 🎨 User Experience
+- **Modern UI/UX**: Responsive design with Tailwind CSS
+- **Particle Backgrounds**: Dynamic visual effects
+- **Smooth Animations**: Framer Motion powered interactions
+- **Mobile Optimized**: Works seamlessly on all devices
 
 ## 🏗️ Architecture
 
-- **Backend**: Rust + Axum web server with in-memory storage
-- **Frontend**: Next.js + TypeScript + Tailwind CSS
-- **Mock Data**: Pre-populated with 5 sample NFTs
-- **API**: RESTful endpoints for NFT operations
-
-## 📡 API Endpoints
-
-- `GET /nfts` - Fetch all NFTs
-- `GET /nft/:id` - Fetch NFT by ID
-- `POST /nft/mint` - Mint new NFT from DNA data
-
-## 🎯 Features
-
-- **NFT Explorer**: Browse existing DNA-based NFTs
-- **Mint Form**: Create new NFTs with species name, DNA hash, and genome data
-- **Mock Blockchain**: Simulated transaction hashes and metadata
-- **Rarity System**: Legendary, Epic, Rare, and Common classifications
-- **Responsive Design**: Modern UI that works on all devices
-
-## 🧪 Mock Data
-
-The system comes pre-loaded with sample NFTs:
-- Golden Eagle (Legendary)
-- Blue Whale (Epic)
-- Red Panda (Rare)
-- Snow Leopard (Epic)
-- Monarch Butterfly (Common)
-
-## 🔧 Development
-
-### Backend Structure
 ```
-backend/
-├── src/
-│   ├── main.rs      # Server entry point
-│   ├── models.rs    # Data structures
-│   ├── routes.rs    # API endpoints
-│   └── state.rs     # Application state
-└── Cargo.toml
+GeneNFT/
+├── 🦀 Backend (Rust + Axum)
+│   ├── RESTful API endpoints
+│   ├── In-memory data storage
+│   ├── XML processing & validation
+│   └── AI art generation
+├── ⚛️ Frontend (Next.js + TypeScript)
+│   ├── React components
+│   ├── ThirdWeb integration
+│   ├── Tailwind CSS styling
+│   └── Responsive design
+└── 🔗 Blockchain Integration
+    ├── ThirdWeb SDK
+    ├── Wallet connection
+    └── NFT transactions
 ```
 
-### Frontend Structure
+## 🛠️ Technology Stack
+
+### Backend
+- **Rust**: High-performance systems programming
+- **Axum**: Modern web framework for Rust
+- **Serde**: Serialization/deserialization
+- **Chrono**: Date and time handling
+- **SHA2**: Cryptographic hashing
+
+### Frontend
+- **Next.js 15**: React framework with App Router
+- **TypeScript**: Type-safe JavaScript
+- **Tailwind CSS**: Utility-first CSS framework
+- **Framer Motion**: Animation library
+- **ThirdWeb**: Web3 development framework
+
+### Blockchain
+- **ThirdWeb SDK**: Wallet connection & NFT operations
+- **Ethereum**: Smart contract platform
+- **IPFS**: Decentralized file storage
+
+## 📦 Installation
+
+### Prerequisites
+- **Rust** (latest stable version) - [Install Rust](https://rustup.rs/)
+- **Node.js** 18+ and npm - [Install Node.js](https://nodejs.org/)
+- **Git** - [Install Git](https://git-scm.com/)
+
+### Quick Start
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/genenft.git
+   cd genenft
+   ```
+
+2. **Start the Backend**
+   ```bash
+   cd backend
+   cargo run
+   ```
+   The Rust backend will start on `http://127.0.0.1:3001`
+
+3. **Start the Frontend**
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+   The Next.js frontend will start on `http://localhost:3000`
+
+4. **Open your browser**
+   Navigate to `http://localhost:3000` to start using GeneNFT!
+
+## 🔌 API Endpoints
+
+### Core NFT Operations
+- `GET /api/nfts` - Fetch all NFTs
+- `GET /api/nft/:id` - Fetch NFT by ID
+- `POST /api/nft/upload-xml` - Upload XML and mint NFT
+
+### Marketplace Operations
+- `GET /api/marketplace/listings` - Get active NFT listings
+- `GET /api/marketplace/stats` - Get marketplace statistics
+- `POST /api/marketplace/list` - List NFT for sale
+- `POST /api/marketplace/buy` - Buy listed NFT
+- `DELETE /api/marketplace/cancel` - Cancel NFT listing
+
+### User Collections
+- `GET /api/collection/:wallet` - Get user's NFT collection
+
+## 🎯 Usage Guide
+
+### 1. Connect Your Wallet
+- Click "Connect Wallet" in the top navigation
+- Choose your preferred wallet (MetaMask, WalletConnect, etc.)
+- Approve the connection
+
+### 2. Upload Genetic Data
+- Navigate to the Upload page
+- Fill in NFT details (name, description, license)
+- Upload your XML file containing genetic data
+- Click "Upload XML" to mint your NFT
+
+### 3. List NFTs for Sale
+- Go to your Collection page
+- Find the NFT you want to sell
+- Click "List for Sale"
+- Set your price in ETH
+- Confirm the listing
+
+### 4. Buy NFTs
+- Browse the Marketplace
+- Find an NFT you want to purchase
+- Click "Buy Now"
+- Confirm the transaction
+- The NFT will be transferred to your wallet
+
+### 5. Manage Your Collection
+- View all your owned NFTs
+- See your listed NFTs
+- Track purchase history
+- Cancel listings if needed
+
+## 🧪 Development
+
+### Project Structure
 ```
-frontend/
-├── app/
-│   ├── components/  # React components
-│   ├── types.ts     # TypeScript types
-│   ├── api.ts       # API service
-│   └── page.tsx     # Main page
-└── package.json
+genenft/
+├── backend/                 # Rust backend
+│   ├── src/
+│   │   ├── main.rs         # Server entry point
+│   │   ├── models.rs        # Data structures
+│   │   ├── routes.rs        # API endpoints
+│   │   └── state.rs         # Application state
+│   ├── Cargo.toml           # Rust dependencies
+│   └── target/              # Build output
+├── frontend/                # Next.js frontend
+│   ├── app/                 # App Router pages
+│   ├── components/          # React components
+│   ├── lib/                 # Utility functions
+│   ├── package.json         # Node.js dependencies
+│   └── .next/               # Build output
+├── .gitignore               # Git ignore rules
+└── README.md                # This file
 ```
 
-## 🌟 Demo Flow
+### Development Commands
 
-1. **View NFTs**: Open the frontend to see existing DNA-based NFTs
-2. **Mint New NFT**: Use the mint form to create NFTs from DNA data
-3. **Explore**: Browse the collection with rarity indicators and blockchain metadata
-4. **Mock Blockchain**: See simulated transaction hashes and IPFS URIs
+#### Backend
+```bash
+cd backend
+cargo check          # Check code without building
+cargo build          # Build the project
+cargo run            # Run the development server
+cargo test           # Run tests
+cargo clippy         # Run linter
+```
 
-## 🎨 Customization
+#### Frontend
+```bash
+cd frontend
+npm install          # Install dependencies
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run start        # Start production server
+npm run lint         # Run ESLint
+```
 
-- Add more species and rarity levels in `backend/src/state.rs`
-- Modify the NFT card design in `frontend/app/components/NFTCard.tsx`
-- Extend the API with new endpoints in `backend/src/routes.rs`
-- Update the mint form fields in `frontend/app/components/MintForm.tsx`
+### Environment Variables
+
+Create a `.env.local` file in the frontend directory:
+
+```env
+# ThirdWeb Configuration
+NEXT_PUBLIC_THIRDWEB_CLIENT_ID=your_client_id_here
+NEXT_PUBLIC_THIRDWEB_CHAIN_ID=1
+
+# Backend API URL
+NEXT_PUBLIC_API_URL=http://127.0.0.1:3001
+```
 
 ## 🚀 Deployment
 
-This is a mock platform designed for hackathons and demonstrations. For production use, you would need to:
-- Replace in-memory storage with a real database
-- Implement proper authentication and authorization
-- Add real blockchain integration
-- Set up proper error handling and validation
+### Backend Deployment
+1. **Build the release version**
+   ```bash
+   cd backend
+   cargo build --release
+   ```
 
-## 📝 License
+2. **Deploy the binary**
+   - Copy `target/release/genenft-backend` to your server
+   - Set up environment variables
+   - Run with a process manager (systemd, PM2, etc.)
 
-This project is open source and available under the MIT License.
+### Frontend Deployment
+1. **Build the production version**
+   ```bash
+   cd frontend
+   npm run build
+   ```
+
+
+
+**Made with ❤️ by the  Team TRAE**
+
+*Revolutionizing genetic research, one NFT at a time.*
