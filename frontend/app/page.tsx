@@ -38,7 +38,12 @@ export default function Home() {
           <Link href="/gene-view" className="text-white/70 hover:text-white transition-colors font-cursive">
             Gene View
           </Link>
+          <Link href="/mutation" className="text-white/70 hover:text-white transition-colors font-cursive">
+            Mutation
+          </Link>
+
             </div>
+            
           </div>
         </div>
       </motion.nav>

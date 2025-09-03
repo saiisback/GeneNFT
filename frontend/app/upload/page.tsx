@@ -252,12 +252,6 @@ export default function UploadPage() {
             </Link>
             <div className="flex items-center space-x-4">
               <Connect />
-              <Link href="/gene-view">
-                <Button variant="outline" size="sm" className="border-white/30 text-white hover:bg-white/10 hover:border-white/50">
-                  <Brain className="w-4 h-4 mr-2" />
-                  Gene View
-                </Button>
-              </Link>
               <Link href="/">
                 <Button variant="outline" size="sm" className="border-white/30 text-white hover:bg-white/10 hover:border-white/50">
                   <ArrowLeft className="w-4 h-4 mr-2" />

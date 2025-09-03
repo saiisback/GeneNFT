@@ -96,12 +96,7 @@ export default function CollectionPage() {
             <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent font-elegant">
               GeneNFT
             </Link>
-                          <Link href="/gene-view">
-                <Button variant="outline" size="sm" className="border-white/30 text-white hover:bg-white/10 hover:border-white/50">
-                  <Brain className="w-4 h-4 mr-2" />
-                  Gene View
-                </Button>
-              </Link>
+
               <Link href="/">
                 <Button variant="outline" size="sm" className="border-white/30 text-white hover:bg-white/10 hover:border-white/50">
                   <ArrowLeft className="w-4 h-4 mr-2" />

@@ -23,38 +23,39 @@ export default function GeneViewPage() {
   const [genomeInfo, setGenomeInfo] = useState<any>(null);
   const [browser, setBrowser] = useState<any>(null);
   const igvContainerRef = useRef<HTMLDivElement>(null);
+  const isMountedRef = useRef(true);
 
   // Common animal genomes with their references
   const genomeReferences = {
     human: {
       id: "hg38",
       name: "Human (GRCh38/hg38)",
-      fastaURL: "https://s3.dualstack.us-east-1.amazonaws.com/igv.org.genomes/hg38/hg38.fa",
-      indexURL: "https://s3.dualstack.us-east-1.amazonaws.com/igv.org.genomes/hg38/hg38.fa.fai"
+      fastaURL: "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz",
+      indexURL: "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz.fai"
     },
     mouse: {
       id: "mm10",
       name: "Mouse (mm10)",
-      fastaURL: "https://s3.dualstack.us-east-1.amazonaws.com/igv.org.genomes/mm10/mm10.fa",
-      indexURL: "https://s3.dualstack.us-east-1.amazonaws.com/igv.org.genomes/mm10/mm10.fa.fai"
+      fastaURL: "https://hgdownload.soe.ucsc.edu/goldenPath/mm10/bigZips/mm10.fa.gz",
+      indexURL: "https://hgdownload.soe.ucsc.edu/goldenPath/mm10/bigZips/mm10.fa.gz.fai"
     },
     rat: {
       id: "rn6",
       name: "Rat (rn6)",
-      fastaURL: "https://s3.dualstack.us-east-1.amazonaws.com/igv.org.genomes/rn6/rn6.fa",
-      indexURL: "https://s3.dualstack.us-east-1.amazonaws.com/igv.org.genomes/rn6/rn6.fa.fai"
+      fastaURL: "https://hgdownload.soe.ucsc.edu/goldenPath/rn6/bigZips/rn6.fa.gz",
+      indexURL: "https://hgdownload.soe.ucsc.edu/goldenPath/rn6/bigZips/rn6.fa.gz.fai"
     },
     zebrafish: {
       id: "danRer10",
       name: "Zebrafish (danRer10)",
-      fastaURL: "https://s3.dualstack.us-east-1.amazonaws.com/igv.org.genomes/danRer10/danRer10.fa",
-      indexURL: "https://s3.dualstack.us-east-1.amazonaws.com/igv.org.genomes/danRer10/danRer10.fa.fai"
+      fastaURL: "https://hgdownload.soe.ucsc.edu/goldenPath/danRer10/bigZips/danRer10.fa.gz",
+      indexURL: "https://hgdownload.soe.ucsc.edu/goldenPath/danRer10/bigZips/danRer10.fa.gz.fai"
     },
     fruitfly: {
       id: "dm6",
       name: "Fruit Fly (dm6)",
-      fastaURL: "https://s3.dualstack.us-east-1.amazonaws.com/igv.org.genomes/dm6/dm6.fa",
-      indexURL: "https://s3.dualstack.us-east-1.amazonaws.com/igv.org.genomes/dm6/dm6.fa.fai"
+      fastaURL: "https://hgdownload.soe.ucsc.edu/goldenPath/dm6/bigZips/dm6.fa.gz",
+      indexURL: "https://hgdownload.soe.ucsc.edu/goldenPath/dm6/bigZips/dm6.fa.gz.fai"
     }
   };
 
@@ -74,15 +75,21 @@ export default function GeneViewPage() {
         script.onload = () => {
           console.log('IGV.js loaded successfully');
           // Initialize with human genome by default
-          handleSearch();
+          if (isMountedRef.current) {
+            handleSearch();
+          }
         };
         script.onerror = () => {
-          setError('Failed to load IGV.js genome viewer');
+          if (isMountedRef.current) {
+            setError('Failed to load IGV.js genome viewer');
+          }
         };
         document.head.appendChild(script);
       } else if (window.igv) {
         // IGV already loaded, initialize
-        handleSearch();
+        if (isMountedRef.current) {
+          handleSearch();
+        }
       }
     };
 
@@ -90,6 +97,7 @@ export default function GeneViewPage() {
 
     // Cleanup function
     return () => {
+      isMountedRef.current = false;
       if (browser) {
         try {
           browser.removeAllTracks();
@@ -104,6 +112,11 @@ export default function GeneViewPage() {
   }, []);
 
   const handleSearch = async () => {
+    // Check if component is still mounted
+    if (!isMountedRef.current) {
+      return;
+    }
+    
     const animal = searchQuery.trim().toLowerCase();
     
     if (!animal) {
@@ -111,9 +124,11 @@ export default function GeneViewPage() {
       return;
     }
 
-    setIsLoading(true);
-    setError('');
-    setGenomeInfo(null);
+    if (isMountedRef.current) {
+      setIsLoading(true);
+      setError('');
+      setGenomeInfo(null);
+    }
 
     // Clear previous browser
     if (browser && igvContainerRef.current) {
@@ -131,13 +146,23 @@ export default function GeneViewPage() {
       }
     } catch (err) {
       console.error('Error loading genome:', err);
-      setError(`Failed to load genome for "${animal}"`);
+      if (isMountedRef.current) {
+        setError(`Failed to load genome for "${animal}"`);
+      }
     } finally {
-      setIsLoading(false);
+      if (isMountedRef.current) {
+        setIsLoading(false);
+      }
     }
   };
 
   const initializeIGV = async (genomeConfig: any) => {
+    // Check if component is still mounted and ref is valid
+    if (!isMountedRef.current) {
+      console.log('Component unmounted, skipping IGV initialization');
+      return;
+    }
+    
     if (!window.igv || !igvContainerRef.current) {
       throw new Error('IGV.js not loaded or container not ready');
     }
@@ -160,16 +185,20 @@ export default function GeneViewPage() {
     // Wait a bit for DOM cleanup
     await new Promise(resolve => setTimeout(resolve, 100));
 
-    // Double-check container is still valid
-    if (!igvContainerRef.current) {
-      throw new Error('Container reference lost during cleanup');
+    // Double-check container is still valid after async operation
+    if (!igvContainerRef.current || !isMountedRef.current) {
+      console.log('Container reference lost or component unmounted during cleanup');
+      return; // Exit gracefully instead of throwing error
     }
 
-    setGenomeInfo({
-      name: genomeConfig.name,
-      id: genomeConfig.id,
-      source: genomeConfig.source || 'Unknown'
-    });
+    // Check if still mounted before setting state
+    if (isMountedRef.current) {
+      setGenomeInfo({
+        name: genomeConfig.name,
+        id: genomeConfig.id,
+        source: genomeConfig.source || 'Unknown'
+      });
+    }
 
     // Check if this genome has direct FASTA URLs (IGV.org genomes)
     if (genomeConfig.fastaURL && genomeConfig.indexURL) {
@@ -192,8 +221,8 @@ export default function GeneViewPage() {
             name: 'Refseq Genes',
             type: 'annotation',
             format: 'gff3',
-            url: `https://s3.dualstack.us-east-1.amazonaws.com/igv.org.genomes/${genomeConfig.id}/refGene.gff3.gz`,
-            indexURL: `https://s3.dualstack.us-east-1.amazonaws.com/igv.org.genomes/${genomeConfig.id}/refGene.gff3.gz.tbi`,
+            url: `https://hgdownload.soe.ucsc.edu/goldenPath/${genomeConfig.id}/bigZips/genes/${genomeConfig.id}.refGene.gtf.gz`,
+            indexURL: `https://hgdownload.soe.ucsc.edu/goldenPath/${genomeConfig.id}/bigZips/genes/${genomeConfig.id}.refGene.gtf.gz.tbi`,
             displayMode: 'EXPANDED',
             height: 120
           },
@@ -202,8 +231,8 @@ export default function GeneViewPage() {
             name: 'Simple Repeats',
             type: 'annotation',
             format: 'gff3',
-            url: `https://s3.dualstack.us-east-1.amazonaws.com/igv.org.genomes/${genomeConfig.id}/simpleRepeat.gff3.gz`,
-            indexURL: `https://s3.dualstack.us-east-1.amazonaws.com/igv.org.genomes/${genomeConfig.id}/simpleRepeat.gff3.gz.tbi`,
+            url: `https://hgdownload.soe.ucsc.edu/goldenPath/${genomeConfig.id}/bigZips/genes/${genomeConfig.id}.simpleRepeat.gtf.gz`,
+            indexURL: `https://hgdownload.soe.ucsc.edu/goldenPath/${genomeConfig.id}/bigZips/genes/${genomeConfig.id}.simpleRepeat.gtf.gz.tbi`,
             displayMode: 'COLLAPSED',
             height: 60
           }
@@ -232,14 +261,21 @@ export default function GeneViewPage() {
         }
         
         const newBrowser = await window.igv.createBrowser(igvContainerRef.current, filteredOptions);
-        setBrowser(newBrowser);
-        console.log('IGV.js browser created successfully with accessible tracks');
+        
+        // Check if still mounted before setting state
+        if (isMountedRef.current) {
+          setBrowser(newBrowser);
+          console.log('IGV.js browser created successfully with accessible tracks');
+        } else {
+          console.log('Component unmounted, skipping browser setup');
+          return;
+        }
         
         // Add event listeners for track loading
         newBrowser.on('trackloaded', (track: any) => {
           console.log(`Track loaded: ${track.name}`);
           // Update loading state when tracks are loaded
-          if (newBrowser.trackViews && newBrowser.trackViews.length > 0) {
+          if (newBrowser.trackViews && newBrowser.trackViews.length > 0 && isMountedRef.current) {
             setIsLoading(false);
           }
         });
@@ -252,7 +288,7 @@ export default function GeneViewPage() {
         
         // Set a timeout to check if tracks are loading
         setTimeout(() => {
-          if (newBrowser.trackViews && newBrowser.trackViews.length === 0) {
+          if (isMountedRef.current && newBrowser.trackViews && newBrowser.trackViews.length === 0) {
             console.log('No tracks loaded, trying fallback configuration...');
             loadFallbackTracks(newBrowser, genomeConfig);
           }
@@ -260,7 +296,7 @@ export default function GeneViewPage() {
         
         // Also check track loading status more frequently
         const trackCheckInterval = setInterval(() => {
-          if (newBrowser.trackViews && newBrowser.trackViews.length > 0) {
+          if (isMountedRef.current && newBrowser.trackViews && newBrowser.trackViews.length > 0) {
             console.log(`Tracks loaded: ${newBrowser.trackViews.length}`);
             clearInterval(trackCheckInterval);
             setIsLoading(false);
@@ -282,7 +318,9 @@ export default function GeneViewPage() {
     } else {
       // For genomes from other sources (Ensembl, UCSC), show info but note IGV limitation
       console.log('Genome found but no direct FASTA URLs available for IGV.js');
-      setError(`Genome "${genomeConfig.name}" found in ${genomeConfig.source}, but IGV.js visualization requires direct genome files. This genome can be viewed in the ${genomeConfig.source} browser.`);
+      if (isMountedRef.current) {
+        setError(`Genome "${genomeConfig.name}" found in ${genomeConfig.source}, but IGV.js visualization requires direct genome files. This genome can be viewed in the ${genomeConfig.source} browser.`);
+      }
       
       // Clear the container
       if (igvContainerRef.current) {
@@ -304,6 +342,11 @@ export default function GeneViewPage() {
   };
 
   const fetchGenomeFromAPI = async (animal: string) => {
+    // Check if component is still mounted
+    if (!isMountedRef.current) {
+      return;
+    }
+    
     try {
       // Call your Next.js API endpoint
       const response = await fetch('/api/genome', {
@@ -339,27 +382,46 @@ export default function GeneViewPage() {
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && isMountedRef.current) {
       handleSearch();
     }
   };
 
   // Check which tracks are accessible before loading
   const checkTrackAccessibility = async (tracks: any[]) => {
+    // Check if component is still mounted
+    if (!isMountedRef.current) {
+      return [];
+    }
+    
     const accessibleTracks = [];
     
     for (const track of tracks) {
+      // Check if still mounted before each fetch
+      if (!isMountedRef.current) {
+        return [];
+      }
+      
       try {
-        // Test if the track URL is accessible
-        const response = await fetch(track.url, { method: 'HEAD' });
-        if (response.ok) {
+        // For external URLs, we can't reliably check accessibility due to CORS
+        // Instead, we'll assume they're accessible and let IGV.js handle failures gracefully
+        if (track.url.startsWith('http')) {
           accessibleTracks.push(track);
-          console.log(`Track accessible: ${track.name}`);
+          console.log(`Track assumed accessible (external): ${track.name}`);
         } else {
-          console.log(`Track not accessible: ${track.name} (${response.status})`);
+          // For local URLs, we can check
+          const response = await fetch(track.url, { method: 'HEAD' });
+          if (response.ok) {
+            accessibleTracks.push(track);
+            console.log(`Track accessible: ${track.name}`);
+          } else {
+            console.log(`Track not accessible: ${track.name} (${response.status})`);
+          }
         }
       } catch (error) {
-        console.log(`Track failed accessibility check: ${track.name}`);
+        console.log(`Track accessibility check failed for ${track.name}, assuming accessible:`, error);
+        // Assume track is accessible and let IGV.js handle failures
+        accessibleTracks.push(track);
       }
     }
     
@@ -368,6 +430,11 @@ export default function GeneViewPage() {
 
   // Fallback function to load basic tracks if the main configuration fails
   const loadFallbackTracks = async (existingBrowser: any, genomeConfig: any) => {
+    // Check if component is still mounted
+    if (!isMountedRef.current) {
+      return;
+    }
+    
     try {
       console.log('Loading fallback tracks...');
       
@@ -416,7 +483,7 @@ export default function GeneViewPage() {
             igvContainerRef.current.innerHTML = '';
             await new Promise(resolve => setTimeout(resolve, 100));
             
-            if (igvContainerRef.current) {
+            if (igvContainerRef.current && isMountedRef.current) {
               const newBrowser = await window.igv.createBrowser(igvContainerRef.current, fallbackOptions);
               setBrowser(newBrowser);
               console.log('New fallback IGV browser created successfully');
@@ -430,7 +497,7 @@ export default function GeneViewPage() {
           igvContainerRef.current.innerHTML = '';
           await new Promise(resolve => setTimeout(resolve, 100));
           
-          if (igvContainerRef.current) {
+          if (igvContainerRef.current && isMountedRef.current) {
             const newBrowser = await window.igv.createBrowser(igvContainerRef.current, fallbackOptions);
             setBrowser(newBrowser);
             console.log('Fallback IGV browser created successfully');
