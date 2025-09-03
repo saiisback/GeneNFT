@@ -161,6 +161,22 @@ export default function Hero() {
                 </Button>
               </Link>
             </motion.div>
+            
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <Link href="/gene-view">
+                <Button 
+                  variant="outline" 
+                  size="xl" 
+                  className="px-8 py-4 text-lg font-cursive font-semibold border-white/30 text-white hover:bg-white/10 hover:border-white/50 elegant-glow hover:elegant-glow transition-all duration-300"
+                >
+                  <Brain className="mr-3 w-6 h-6" />
+                  Explore Genes
+                </Button>
+              </Link>
+            </motion.div>
           </motion.div>
         </div>
 

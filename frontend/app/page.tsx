@@ -29,12 +29,15 @@ export default function Home() {
               GeneNFT
             </div>
             <div className="flex space-x-8">
-              <Link href="/collection" className="text-white/70 hover:text-white transition-colors font-cursive">
-                Collection
-              </Link>
-              <Link href="/upload" className="text-white/70 hover:text-white transition-colors font-cursive">
-                Upload
-              </Link>
+                        <Link href="/collection" className="text-white/70 hover:text-white transition-colors font-cursive">
+            Collection
+          </Link>
+          <Link href="/upload" className="text-white/70 hover:text-white transition-colors font-cursive">
+            Upload
+          </Link>
+          <Link href="/gene-view" className="text-white/70 hover:text-white transition-colors font-cursive">
+            Gene View
+          </Link>
             </div>
           </div>
         </div>
@@ -82,7 +85,7 @@ export default function Home() {
           </div>
           <div className="border-t border-white/20 pt-8">
             <p className="text-white/40 font-cursive">
-              © 2024 GeneNFT. Built for the future of genetic research.
+              © 2025 GeneNFT. Built for the future of genetic research.
             </p>
           </div>
         </div>

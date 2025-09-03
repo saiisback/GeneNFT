@@ -6,7 +6,7 @@ import { NFT } from '@/app/types';
 import { nftApi } from '@/app/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, ExternalLink, Dna, Hash, Shield, Zap, Search, Filter } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Dna, Hash, Shield, Zap, Search, Filter, Brain } from 'lucide-react';
 import Link from 'next/link';
 import ParticleBackground from '@/components/ParticleBackground';
 
@@ -96,12 +96,18 @@ export default function CollectionPage() {
             <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent font-elegant">
               GeneNFT
             </Link>
-            <Link href="/">
-              <Button variant="outline" size="sm" className="border-white/30 text-white hover:bg-white/10 hover:border-white/50">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Home
-              </Button>
-            </Link>
+                          <Link href="/gene-view">
+                <Button variant="outline" size="sm" className="border-white/30 text-white hover:bg-white/10 hover:border-white/50">
+                  <Brain className="w-4 h-4 mr-2" />
+                  Gene View
+                </Button>
+              </Link>
+              <Link href="/">
+                <Button variant="outline" size="sm" className="border-white/30 text-white hover:bg-white/10 hover:border-white/50">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Home
+                </Button>
+              </Link>
           </div>
         </div>
       </motion.header>
