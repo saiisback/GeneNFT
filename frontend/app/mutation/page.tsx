@@ -1,14 +1,21 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import MutationPlayground from '@/components/MutationPlayground';
-import ParticleBackground from '@/components/ParticleBackground';
+import Link from 'next/link';
+import { Button } from '../../components/ui/button';
+import { ArrowLeft } from 'lucide-react';
+import MutationPlayground from '../../components/MutationPlayground';
+import ParticleBackground from '../../components/ParticleBackground';
+import Navbar from '../../components/Navbar';
 
 export default function MutationPage() {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Particle Background */}
       <ParticleBackground />
+      
+      {/* Navigation */}
+      <Navbar />
       
       {/* Header */}
       <motion.header
@@ -24,7 +31,11 @@ export default function MutationPage() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-white via-blue-400 to-purple-500 bg-clip-text text-transparent font-elegant mb-6"
           >
-            Gene Mutation Playground
+            <h1 className="text-5xl md:text-6xl font-elegant font-black mb-6">
+              <span className="gradient-text">Mutation</span>{' '}
+              <span className="gradient-text-accent">Playground</span>
+            </h1>
+          
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}

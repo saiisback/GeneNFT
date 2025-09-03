@@ -4,12 +4,13 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { NFT } from '@/app/types';
-import { nftApi } from '@/app/api';
+import { getNFTById } from '@/app/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, ExternalLink, Copy, Dna, Hash, Shield, Zap } from 'lucide-react';
 import Link from 'next/link';
 import ParticleBackground from '@/components/ParticleBackground';
+import Navbar from '@/components/Navbar';
 
 export default function NFTPage() {
   const params = useParams();
@@ -22,7 +23,7 @@ export default function NFTPage() {
     const fetchNFT = async () => {
       try {
         setIsLoading(true);
-        const data = await nftApi.getById(params.slug as string);
+        const data = await getNFTById(params.slug as string);
         setNft(data);
         setError('');
       } catch (err) {
@@ -106,27 +107,9 @@ export default function NFTPage() {
       {/* Particle Background */}
       <ParticleBackground />
       
-      {/* Header */}
-      <motion.header
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="fixed top-0 left-0 right-0 z-40 bg-black/80 backdrop-blur-md border-b border-white/20"
-      >
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent font-elegant">
-              GeneNFT
-            </Link>
-            <Link href="/">
-              <Button variant="outline" size="sm" className="border-white/30 text-white hover:bg-white/10 hover:border-white/50">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Collection
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </motion.header>
-
+      {/* Navigation */}
+      <Navbar />
+      
       {/* Main Content */}
       <main className="pt-24 pb-20 relative z-10">
         <div className="max-w-6xl mx-auto px-4">

@@ -9,6 +9,7 @@ import Link from 'next/link';
 import ParticleBackground from '@/components/ParticleBackground';
 import Connect from '@/components/Connect';
 import { useActiveAccount } from 'thirdweb/react';
+import Navbar from '@/components/Navbar';
 
 export default function UploadPage() {
   const activeAccount = useActiveAccount();
@@ -169,26 +170,9 @@ export default function UploadPage() {
       <div className="min-h-screen bg-black text-white">
         <ParticleBackground />
         
-        {/* Header */}
-        <motion.header
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="fixed top-0 left-0 right-0 z-40 bg-black/80 backdrop-blur-md border-b border-white/20"
-        >
-          <div className="max-w-7xl mx-auto px-4 py-4">
-            <div className="flex justify-between items-center">
-              <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent font-elegant">
-                GeneNFT
-              </Link>
-              <Link href="/collection">
-                <Button variant="outline" size="sm" className="border-white/30 text-white hover:bg-white/10 hover:border-white/50">
-                  View Collection
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </motion.header>
-
+        {/* Navigation */}
+        <Navbar />
+        
         {/* Success Content */}
         <main className="pt-24 pb-20 relative z-10">
           <div className="max-w-4xl mx-auto px-4 text-center">
@@ -239,30 +223,9 @@ export default function UploadPage() {
       {/* Particle Background */}
       <ParticleBackground />
       
-      {/* Header */}
-      <motion.header
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="fixed top-0 left-0 right-0 z-40 bg-black/80 backdrop-blur-md border-b border-white/20"
-      >
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent font-elegant">
-              GeneNFT
-            </Link>
-            <div className="flex items-center space-x-4">
-              <Connect />
-              <Link href="/">
-                <Button variant="outline" size="sm" className="border-white/30 text-white hover:bg-white/10 hover:border-white/50">
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back to Home
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </motion.header>
-
+      {/* Navigation */}
+      <Navbar />
+      
       {/* Main Content */}
       <main className="pt-24 pb-20 relative z-10">
         <div className="max-w-4xl mx-auto px-4">

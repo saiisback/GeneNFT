@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Hero from '@/components/Hero';
 import NFTCollection from '@/components/NFTCollection';
 import ParticleBackground from '@/components/ParticleBackground';
+import Navbar from '@/components/Navbar';
 
 export default function Home() {
 
@@ -13,41 +14,12 @@ export default function Home() {
       {/* Particle Background */}
       <ParticleBackground />
       
+      {/* Navigation */}
+      <Navbar />
+      
       {/* Hero Section */}
       <Hero />
       
-      {/* Navigation */}
-      <motion.nav
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 1 }}
-        className="fixed top-0 left-0 right-0 z-40 bg-black/80 backdrop-blur-md border-b border-white/20"
-      >
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <div className="text-2xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent font-elegant">
-              GeneNFT
-            </div>
-            <div className="flex space-x-8">
-                        <Link href="/collection" className="text-white/70 hover:text-white transition-colors font-cursive">
-            Collection
-          </Link>
-          <Link href="/upload" className="text-white/70 hover:text-white transition-colors font-cursive">
-            Upload
-          </Link>
-          <Link href="/gene-view" className="text-white/70 hover:text-white transition-colors font-cursive">
-            Gene View
-          </Link>
-          <Link href="/mutation" className="text-white/70 hover:text-white transition-colors font-cursive">
-            Mutation
-          </Link>
-
-            </div>
-            
-          </div>
-        </div>
-      </motion.nav>
-
       {/* Main Content */}
       <main className="pt-20 relative z-10">
         <NFTCollection />

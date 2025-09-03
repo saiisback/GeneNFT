@@ -116,69 +116,71 @@ export default function MutationPlayground() {
   const [mutationHistory, setMutationHistory] = useState<GeneData[]>([]);
   const [isMutating, setIsMutating] = useState(false);
   const [lastMutationType, setLastMutationType] = useState<string | null>(null);
+  const [customDna, setCustomDna] = useState<string>('ATGCTGACGTACGTACGTACGTA');
+  const [customSpecies, setCustomSpecies] = useState<string>('Custom Creature');
 
-  // Generate random mutation with enhanced logic
+  // Generate simple mutations
   const generateMutation = (gene: GeneData): GeneData => {
     const newDna = gene.dna.split('');
-    const mutationType: MutationType = Math.random() < 0.6 ? 'substitution' : Math.random() < 0.8 ? 'insertion' : 'deletion';
+    const newTraits = { ...gene.traits };
     
-    let position: number;
-    let newTraits = { ...gene.traits };
-    let mutationDetails = {
-      type: mutationType,
-      position: 0,
-      oldBase: '',
-      newBase: ''
-    };
-    
-    switch (mutationType) {
-      case 'substitution':
-        position = Math.floor(Math.random() * newDna.length);
-        const bases = ['A', 'T', 'G', 'C'];
-        const newBase = bases[Math.floor(Math.random() * bases.length)];
-        mutationDetails = {
-          type: 'substitution',
-          position,
-          oldBase: newDna[position],
-          newBase
-        };
-        newDna[position] = newBase;
-        break;
-      case 'insertion':
-        position = Math.floor(Math.random() * newDna.length);
-        const insertBase = ['A', 'T', 'G', 'C'][Math.floor(Math.random() * 4)];
-        mutationDetails = {
-          type: 'insertion',
-          position,
-          oldBase: '',
-          newBase: insertBase
-        };
-        newDna.splice(position, 0, insertBase);
-        break;
-      case 'deletion':
-        position = Math.floor(Math.random() * (newDna.length - 1));
-        mutationDetails = {
-          type: 'deletion',
-          position,
-          oldBase: newDna[position],
-          newBase: ''
-        };
-        newDna.splice(position, 1);
-        break;
-    }
-    
-    // Apply trait changes based on mutation position with probability
-    Object.entries(traitRules).forEach(([trait, rule]) => {
-      if (rule.positions.some(pos => pos < newDna.length && pos === mutationDetails.position)) {
-        // 70% chance of trait change when mutation affects trait position
-        if (Math.random() < 0.7) {
-          newTraits[trait as keyof typeof newTraits] = rule.mutations[Math.floor(Math.random() * rule.mutations.length)];
-        }
+    // Simple mutation patterns
+    const mutations = [
+      // Underwater transformation
+      {
+        changes: { 2: 'C', 3: 'G' },
+        traits: {
+          respiration: 'Underwater Breathing',
+          climate_tolerance: 'Aquatic',
+          special_ability: 'Gills'
+        },
+        name: 'Underwater Transformation'
+      },
+      // Fire transformation
+      {
+        changes: { 5: 'A', 6: 'T' },
+        traits: {
+          respiration: 'Fire Breathing',
+          climate_tolerance: 'Volcanic',
+          special_ability: 'Fire Control'
+        },
+        name: 'Fire Transformation'
+      },
+      // Ice transformation
+      {
+        changes: { 8: 'G', 9: 'C' },
+        traits: {
+          climate_tolerance: 'Arctic',
+          special_ability: 'Ice Generation',
+          appearance: 'Frost Coated'
+        },
+        name: 'Ice Transformation'
+      },
+      // Electric transformation
+      {
+        changes: { 12: 'T', 13: 'A' },
+        traits: {
+          special_ability: 'Electric Discharge',
+          appearance: 'Lightning Aura'
+        },
+        name: 'Electric Transformation'
       }
+    ];
+    
+    // Pick a random mutation
+    const mutation = mutations[Math.floor(Math.random() * mutations.length)];
+    
+    // Apply DNA changes
+    Object.entries(mutation.changes).forEach(([pos, base]) => {
+      newDna[parseInt(pos)] = base;
     });
     
-    setLastMutationType(mutationType === 'substitution' ? 'Base Substitution' : 
-                       mutationType === 'insertion' ? 'Base Insertion' : 'Base Deletion');
+    // Apply trait changes
+    Object.entries(mutation.traits).forEach(([trait, value]) => {
+      newTraits[trait as keyof typeof newTraits] = value;
+    });
+    
+    setLastMutationType(mutation.name);
     
     return {
       ...gene,
@@ -202,6 +204,7 @@ export default function MutationPlayground() {
   const resetMutation = () => {
     setMutatedGene(null);
     setMutationHistory([]);
+    setLastMutationType(null);
   };
 
   const selectNewGene = (gene: GeneData) => {
@@ -209,8 +212,72 @@ export default function MutationPlayground() {
     resetMutation();
   };
 
+  const createCustomGene = () => {
+    if (customDna.length >= 20) {
+      const newGene: GeneData = {
+        species: customSpecies,
+        dna: customDna,
+        traits: {
+          respiration: "Air Breathing",
+          climate_tolerance: "Temperate",
+          disease_resistance: "Medium",
+          special_ability: "None",
+          appearance: "Normal"
+        }
+      };
+      setSelectedGene(newGene);
+      resetMutation();
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4">
+      {/* Custom DNA Input */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.4 }}
+        className="mb-12 bg-white/5 border border-white/20 rounded-2xl p-8 glass-effect"
+      >
+        <h2 className="text-3xl font-bold text-white mb-6 font-elegant text-center">Create Your Own DNA</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-white/80 mb-2 font-semibold">Species Name</label>
+            <input
+              type="text"
+              value={customSpecies}
+              onChange={(e) => setCustomSpecies(e.target.value)}
+              className="w-full px-4 py-3 bg-black/30 border border-white/20 rounded-lg text-white placeholder-white/40 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400/20 transition-all duration-300"
+              placeholder="Enter species name..."
+            />
+          </div>
+          <div>
+            <label className="block text-white/80 mb-2 font-semibold">DNA Sequence (min 20 bases)</label>
+            <input
+              type="text"
+              value={customDna}
+              onChange={(e) => setCustomDna(e.target.value.toUpperCase())}
+              className="w-full px-4 py-3 bg-black/30 border border-white/20 rounded-lg text-white placeholder-white/40 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400/20 transition-all duration-300 font-mono"
+              placeholder="ATGCTGACGTACGTACGTACGTA"
+            />
+            <div className="text-xs text-white/60 mt-1">
+              Use only A, T, G, C bases. Current length: {customDna.length}
+            </div>
+          </div>
+        </div>
+        <div className="text-center mt-6">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={createCustomGene}
+            disabled={customDna.length < 20}
+            className="px-8 py-4 bg-white/10 border border-white/20 rounded-full text-white font-bold text-lg hover:bg-white/20 hover:border-white/40 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed elegant-glow"
+          >
+            Create Custom Species
+          </motion.button>
+        </div>
+      </motion.div>
+
       {/* Gene Selection */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -223,13 +290,13 @@ export default function MutationPlayground() {
           {sampleGenes.map((gene, index) => (
             <motion.button
               key={gene.species}
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.05, y: -5 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => selectNewGene(gene)}
               className={`p-6 rounded-2xl border-2 transition-all duration-300 ${
                 selectedGene.species === gene.species
-                  ? 'border-blue-400 bg-blue-400/10 elegant-glow'
-                  : 'border-white/20 bg-white/5 hover:border-white/40'
+                  ? 'border-white/40 bg-white/10 elegant-glow shadow-lg shadow-white/10'
+                  : 'border-white/20 bg-white/5 hover:border-white/40 hover:bg-white/10'
               }`}
             >
               <h3 className="text-2xl font-bold text-white mb-3 font-elegant">{gene.species}</h3>
@@ -237,9 +304,9 @@ export default function MutationPlayground() {
                 {gene.dna.substring(0, 20)}...
               </div>
               <div className="space-y-1 text-sm text-white/80">
-                <div>🫁 {gene.traits.respiration}</div>
-                <div>🌍 {gene.traits.climate_tolerance}</div>
-                <div>🛡️ {gene.traits.disease_resistance}</div>
+                <div>Respiration: {gene.traits.respiration}</div>
+                <div>Climate: {gene.traits.climate_tolerance}</div>
+                <div>Disease Resistance: {gene.traits.disease_resistance}</div>
               </div>
             </motion.button>
           ))}
@@ -254,11 +321,11 @@ export default function MutationPlayground() {
         className="text-center mb-12"
       >
         <motion.button
-          whileHover={{ scale: 1.05 }}
+          whileHover={{ scale: 1.05, y: -2 }}
           whileTap={{ scale: 0.95 }}
           onClick={handleMutate}
           disabled={isMutating}
-          className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full text-white font-bold text-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed elegant-glow"
+          className="px-12 py-5 bg-white/10 border border-white/20 rounded-full text-white font-bold text-xl hover:bg-white/20 hover:border-white/40 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed elegant-glow shadow-lg shadow-white/10"
         >
           {isMutating ? (
             <div className="flex items-center space-x-2">
@@ -267,7 +334,7 @@ export default function MutationPlayground() {
             </div>
           ) : (
             <>
-              🧬 Mutate DNA
+              Mutate DNA
             </>
           )}
         </motion.button>
@@ -277,21 +344,21 @@ export default function MutationPlayground() {
             <motion.button
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
               onClick={resetMutation}
-              className="ml-4 px-6 py-3 bg-white/10 border border-white/20 rounded-full text-white hover:bg-white/20 transition-all duration-300"
+              className="ml-4 px-8 py-4 bg-white/5 border border-white/20 rounded-full text-white font-semibold hover:bg-white/10 hover:border-white/30 transition-all duration-300 elegant-glow"
             >
-              🔄 Reset
+              Reset
             </motion.button>
             
             {lastMutationType && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-4 px-4 py-2 bg-blue-500/20 border border-blue-500/40 rounded-full text-blue-300 text-sm font-semibold"
+                className="mt-4 px-6 py-3 bg-white/10 border border-white/30 rounded-full text-white text-sm font-bold elegant-glow"
               >
-                🧬 {lastMutationType} Applied
+                {lastMutationType} Applied
               </motion.div>
             )}
           </>
@@ -308,7 +375,7 @@ export default function MutationPlayground() {
           className="bg-white/5 border border-white/20 rounded-2xl p-8 glass-effect"
         >
           <h3 className="text-2xl font-bold text-white mb-6 font-elegant text-center">
-            🧬 Original {selectedGene.species}
+            Original {selectedGene.species}
           </h3>
           
           {/* DNA Sequence */}
@@ -338,23 +405,23 @@ export default function MutationPlayground() {
             <h4 className="text-lg font-semibold text-white/80 mb-3">Traits</h4>
             <div className="space-y-3">
               <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
-                <span className="text-white/70">🫁 Respiration</span>
+                <span className="text-white/70">Respiration</span>
                 <span className="text-white font-semibold">{selectedGene.traits.respiration}</span>
               </div>
               <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
-                <span className="text-white/70">🌍 Climate</span>
+                <span className="text-white/70">Climate</span>
                 <span className="text-white font-semibold">{selectedGene.traits.climate_tolerance}</span>
               </div>
               <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
-                <span className="text-white/70">🛡️ Disease Resistance</span>
+                <span className="text-white/70">Disease Resistance</span>
                 <span className="text-white font-semibold">{selectedGene.traits.disease_resistance}</span>
               </div>
               <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
-                <span className="text-white/70">✨ Special Ability</span>
+                <span className="text-white/70">Special Ability</span>
                 <span className="text-white font-semibold">{selectedGene.traits.special_ability}</span>
               </div>
               <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
-                <span className="text-white/70">🎨 Appearance</span>
+                <span className="text-white/70">Appearance</span>
                 <span className="text-white font-semibold">{selectedGene.traits.appearance}</span>
               </div>
             </div>
@@ -371,11 +438,11 @@ export default function MutationPlayground() {
           <h3 className="text-2xl font-bold text-white mb-6 font-elegant text-center">
             {mutatedGene ? (
               <>
-                🚀 Mutated {mutatedGene.species}
+                Mutated {mutatedGene.species}
               </>
             ) : (
               <>
-                ⏳ Waiting for Mutation...
+                Waiting for Mutation...
               </>
             )}
           </h3>
@@ -425,11 +492,11 @@ export default function MutationPlayground() {
                         }`}
                       >
                         <span className="text-white/70">
-                          {key === 'respiration' ? '🫁 Respiration' :
-                           key === 'climate_tolerance' ? '🌍 Climate' :
-                           key === 'disease_resistance' ? '🛡️ Disease Resistance' :
-                           key === 'special_ability' ? '✨ Special Ability' :
-                           '🎨 Appearance'}
+                          {key === 'respiration' ? 'Respiration' :
+                           key === 'climate_tolerance' ? 'Climate' :
+                           key === 'disease_resistance' ? 'Disease Resistance' :
+                           key === 'special_ability' ? 'Special Ability' :
+                           'Appearance'}
                         </span>
                         <div className="text-right">
                           <div className={`text-white font-semibold ${hasChanged ? 'text-yellow-400' : ''}`}>
@@ -450,7 +517,7 @@ export default function MutationPlayground() {
           ) : (
             <div className="flex items-center justify-center h-64">
               <div className="text-center text-white/40">
-                <div className="text-6xl mb-4">🧬</div>
+                <div className="text-6xl mb-4">DNA</div>
                 <p className="text-lg">Click "Mutate DNA" to see the transformation!</p>
               </div>
             </div>
@@ -467,7 +534,7 @@ export default function MutationPlayground() {
           className="bg-white/5 border border-white/20 rounded-2xl p-8 glass-effect"
         >
           <h3 className="text-2xl font-bold text-white mb-6 font-elegant text-center">
-            🌳 Evolution Timeline
+            Evolution Timeline
           </h3>
           <div className="space-y-4">
             {mutationHistory.map((mutation, index) => (
@@ -478,7 +545,7 @@ export default function MutationPlayground() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="flex items-center space-x-4 p-4 bg-white/5 rounded-lg"
               >
-                <div className="text-2xl">🔄</div>
+                <div className="text-2xl">Mutation</div>
                 <div className="flex-1">
                   <div className="text-white font-semibold">
                     Generation {index + 1}
@@ -488,8 +555,8 @@ export default function MutationPlayground() {
                   </div>
                 </div>
                 <div className="text-right text-sm text-white/70">
-                  <div>🫁 {mutation.traits.respiration}</div>
-                  <div>🌍 {mutation.traits.climate_tolerance}</div>
+                  <div>Respiration: {mutation.traits.respiration}</div>
+                  <div>Climate: {mutation.traits.climate_tolerance}</div>
                 </div>
               </motion.div>
             ))}

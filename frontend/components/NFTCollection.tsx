@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { NFT } from '@/app/types';
-import { nftApi } from '@/app/api';
+import { getAllNFTs } from '@/app/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Eye, Dna, Sparkles, Zap } from 'lucide-react';
@@ -18,7 +18,7 @@ export default function NFTCollection() {
     const fetchNFTs = async () => {
       try {
         setIsLoading(true);
-        const data = await nftApi.getAll();
+        const data = await getAllNFTs();
         setNfts(data);
         setError('');
       } catch (err) {
@@ -245,6 +245,25 @@ export default function NFTCollection() {
                           {truncateAddress(nft.xml_hash)}
                         </span>
                       </div>
+                      
+                      {/* Marketplace Status */}
+                      {nft.is_listed && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-white/60 font-cursive">Price:</span>
+                          <span className="font-mono text-green-400 font-bold">
+                            {nft.price} ETH
+                          </span>
+                        </div>
+                      )}
+                      
+                      {/* Listing Status Badge */}
+                      {nft.is_listed && (
+                        <div className="mt-3">
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-500/20 text-green-400 border border-green-500/40">
+                            🏪 Listed for Sale
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Attributes */}
@@ -293,6 +312,36 @@ export default function NFTCollection() {
               <Zap className="w-5 h-5 mr-2" />
               Upload Your First XML
             </Button>
+          </motion.div>
+        )}
+
+        {/* Marketplace CTA */}
+        {nfts.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.8 }}
+            className="mt-20 text-center"
+          >
+            <div className="bg-gradient-to-r from-white/5 to-white/10 border border-white/20 rounded-2xl p-8 glass-effect">
+              <h3 className="text-3xl font-bold text-white mb-4 font-elegant">Ready to Trade?</h3>
+              <p className="text-white/70 text-lg mb-6 font-cursive max-w-2xl mx-auto">
+                Explore the marketplace to buy, sell, and discover unique genetic NFTs. 
+                Join the community of researchers and collectors.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link href="/marketplace">
+                  <Button size="lg" className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold px-8 py-4 rounded-lg transition-all duration-300">
+                    🏪 Explore Marketplace
+                  </Button>
+                </Link>
+                <Link href="/collection">
+                  <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 hover:border-white/50 px-8 py-4 rounded-lg transition-all duration-300">
+                    📚 View Collection
+                  </Button>
+                </Link>
+              </div>
+            </div>
           </motion.div>
         )}
       </div>

@@ -8,7 +8,7 @@ import AnimatedBlob from './AnimatedBlob';
 
 export default function Hero() {
   return (
-    <section className="relative min-h-screen bg-gradient-to-brsubtle-pattern">
+    <section className="relative min-h-screen pt-24 bg-gradient-to-brsubtle-pattern">
       {/* Background Elements */}
       <AnimatedBlob />
       

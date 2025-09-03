@@ -4,16 +4,20 @@ use chrono::Utc;
 use sha2::{Sha256, Digest};
 use hex;
 use base64::{Engine as _, engine::general_purpose};
-use crate::models::NFT;
+use crate::models::{NFT, NFTListing, Transaction, ListingStatus, UserCollection, MarketplaceStats};
 
 pub struct AppState {
     pub nfts: Mutex<HashMap<String, NFT>>,
+    pub listings: Mutex<HashMap<String, NFTListing>>,
+    pub transactions: Mutex<HashMap<String, Transaction>>,
 }
 
 impl AppState {
     pub fn new() -> Self {
         let mut state = AppState {
             nfts: Mutex::new(HashMap::new()),
+            listings: Mutex::new(HashMap::new()),
+            transactions: Mutex::new(HashMap::new()),
         };
         
         // Add some mock NFTs
@@ -40,6 +44,226 @@ impl AppState {
             nfts.get(id).cloned()
         } else {
             None
+        }
+    }
+
+    // Marketplace functions
+    pub fn list_nft(&self, nft_id: &str, price: f64, seller_address: &str) -> Result<NFTListing, String> {
+        // Check if NFT exists and is owned by seller
+        if let Ok(mut nfts) = self.nfts.lock() {
+            if let Some(nft) = nfts.get(nft_id).cloned() {
+                if nft.owner != seller_address {
+                    return Err("You don't own this NFT".to_string());
+                }
+                if nft.is_listed {
+                    return Err("NFT is already listed".to_string());
+                }
+
+                // Update NFT listing status
+                let mut updated_nft = nft;
+                updated_nft.is_listed = true;
+                updated_nft.price = Some(price);
+                updated_nft.listing_date = Some(Utc::now().to_rfc3339());
+                nfts.insert(nft_id.to_string(), updated_nft);
+
+                // Create listing
+                let listing = NFTListing {
+                    nft_id: nft_id.to_string(),
+                    price,
+                    seller: seller_address.to_string(),
+                    listed_at: Utc::now().to_rfc3339(),
+                    status: ListingStatus::Active,
+                };
+
+                if let Ok(mut listings) = self.listings.lock() {
+                    listings.insert(nft_id.to_string(), listing.clone());
+                }
+
+                Ok(listing)
+            } else {
+                Err("NFT not found".to_string())
+            }
+        } else {
+            Err("Failed to access NFT data".to_string())
+        }
+    }
+
+    pub fn buy_nft(&self, nft_id: &str, buyer_address: &str, price: f64) -> Result<Transaction, String> {
+        // Check if NFT is listed and price matches
+        if let Ok(listings) = self.listings.lock() {
+            if let Some(listing) = listings.get(nft_id) {
+                if listing.status != ListingStatus::Active {
+                    return Err("NFT is not available for purchase".to_string());
+                }
+                if listing.price != price {
+                    return Err("Price mismatch".to_string());
+                }
+
+                // Update NFT ownership
+                if let Ok(mut nfts) = self.nfts.lock() {
+                    if let Some(nft) = nfts.get(nft_id).cloned() {
+                        let mut updated_nft = nft;
+                        updated_nft.owner = buyer_address.to_string();
+                        updated_nft.is_listed = false;
+                        updated_nft.price = None;
+                        updated_nft.listing_date = None;
+                        nfts.insert(nft_id.to_string(), updated_nft);
+                    }
+                }
+
+                // Remove the sold listing from active listings
+                if let Ok(mut listings) = self.listings.lock() {
+                    listings.remove(nft_id);
+                }
+
+                // Create transaction record
+                let transaction = Transaction {
+                    id: uuid::Uuid::new_v4().to_string(),
+                    nft_id: nft_id.to_string(),
+                    seller: listing.seller.clone(),
+                    buyer: buyer_address.to_string(),
+                    price,
+                    transaction_hash: format!("0x{}", hex::encode(uuid::Uuid::new_v4().as_bytes())),
+                    timestamp: Utc::now().to_rfc3339(),
+                };
+
+                if let Ok(mut transactions) = self.transactions.lock() {
+                    transactions.insert(transaction.id.clone(), transaction.clone());
+                }
+
+                Ok(transaction)
+            } else {
+                Err("NFT not listed for sale".to_string())
+            }
+        } else {
+            Err("Failed to access listing data".to_string())
+        }
+    }
+
+    pub fn cancel_listing(&self, nft_id: &str, seller_address: &str) -> Result<(), String> {
+        // Check if listing exists and is owned by seller
+        if let Ok(listings) = self.listings.lock() {
+            if let Some(listing) = listings.get(nft_id) {
+                if listing.seller != seller_address {
+                    return Err("You don't own this listing".to_string());
+                }
+                if listing.status != ListingStatus::Active {
+                    return Err("Listing is not active".to_string());
+                }
+
+                // Update listing status
+                if let Ok(mut listings) = self.listings.lock() {
+                    if let Some(listing) = listings.get_mut(nft_id) {
+                        listing.status = ListingStatus::Cancelled;
+                    }
+                }
+
+                // Update NFT listing status
+                if let Ok(mut nfts) = self.nfts.lock() {
+                    if let Some(nft) = nfts.get(nft_id).cloned() {
+                        let mut updated_nft = nft;
+                        updated_nft.is_listed = false;
+                        updated_nft.price = None;
+                        updated_nft.listing_date = None;
+                        nfts.insert(nft_id.to_string(), updated_nft);
+                    }
+                }
+
+                Ok(())
+            } else {
+                Err("Listing not found".to_string())
+            }
+        } else {
+            Err("Failed to access listing data".to_string())
+        }
+    }
+
+    pub fn get_active_listings(&self) -> Vec<NFTListing> {
+        if let Ok(listings) = self.listings.lock() {
+            listings.values()
+                .filter(|listing| listing.status == ListingStatus::Active)
+                .cloned()
+                .collect()
+        } else {
+            Vec::new()
+        }
+    }
+
+    pub fn get_user_collection(&self, wallet_address: &str) -> UserCollection {
+        let owned_nfts = if let Ok(nfts) = self.nfts.lock() {
+            nfts.values()
+                .filter(|nft| nft.owner == wallet_address)
+                .cloned()
+                .collect()
+        } else {
+            Vec::new()
+        };
+
+        let listed_nfts = if let Ok(nfts) = self.nfts.lock() {
+            nfts.values()
+                .filter(|nft| nft.owner == wallet_address && nft.is_listed)
+                .cloned()
+                .collect()
+        } else {
+            Vec::new()
+        };
+
+        let transaction_history = if let Ok(transactions) = self.transactions.lock() {
+            transactions.values()
+                .filter(|tx| tx.seller == wallet_address || tx.buyer == wallet_address)
+                .cloned()
+                .collect()
+        } else {
+            Vec::new()
+        };
+
+        UserCollection {
+            wallet_address: wallet_address.to_string(),
+            owned_nfts,
+            listed_nfts,
+            transaction_history,
+        }
+    }
+
+    pub fn get_marketplace_stats(&self) -> MarketplaceStats {
+        let total_listings = if let Ok(listings) = self.listings.lock() {
+            listings.values()
+                .filter(|listing| listing.status == ListingStatus::Active)
+                .count()
+        } else {
+            0
+        };
+
+        let total_volume = if let Ok(transactions) = self.transactions.lock() {
+            transactions.values()
+                .map(|tx| tx.price)
+                .sum()
+        } else {
+            0.0
+        };
+
+        let recent_transactions = if let Ok(transactions) = self.transactions.lock() {
+            let mut tx_vec: Vec<Transaction> = transactions.values().cloned().collect();
+            tx_vec.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
+            tx_vec.into_iter().take(10).collect()
+        } else {
+            Vec::new()
+        };
+
+        let floor_price = if let Ok(listings) = self.listings.lock() {
+            listings.values()
+                .filter(|listing| listing.status == ListingStatus::Active)
+                .map(|listing| listing.price)
+                .min_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal))
+        } else {
+            None
+        };
+
+        MarketplaceStats {
+            total_listings,
+            total_volume,
+            recent_transactions,
+            floor_price,
         }
     }
 
@@ -159,6 +383,9 @@ impl AppState {
                 owner: "0x1234567890123456789012345678901234567890".to_string(),
                 rarity: "Legendary".to_string(),
                 created_at: Utc::now().to_rfc3339(),
+                price: None,
+                is_listed: false,
+                listing_date: None,
             },
             NFT {
                 id: "2".to_string(),
@@ -181,11 +408,14 @@ impl AppState {
                     license: "CC0".to_string(),
                     provenance: "Generated from XML data".to_string(),
                 },
-                xml_content: "<dna><kingdom>plantae</kingdom><rarity>rare</rarity></dna>".to_string(),
+                xml_content: "<dna><kingdom>plantae</rarity>rare</rarity></dna>".to_string(),
                 xml_hash: "f6e5d4c3b2a1".to_string(),
                 owner: "0x0987654321098765432109876543210987654321".to_string(),
                 rarity: "Epic".to_string(),
                 created_at: Utc::now().to_rfc3339(),
+                price: None,
+                is_listed: false,
+                listing_date: None,
             },
         ];
 
